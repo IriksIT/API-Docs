@@ -74,7 +74,8 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/infoResponse"
-                }
+                },
+                "examples": {}
               }
             }
           },
@@ -88,7 +89,8 @@
               }
             }
           }
-        }
+        },
+        "operationId": "get.basic.docs"
       }
     },
     "/help": {
@@ -119,7 +121,8 @@
               }
             }
           }
-        }
+        },
+        "operationId": "get.basic.help"
       }
     }
   },
