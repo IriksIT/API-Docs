@@ -1,0 +1,248 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Iriks-IT API",
+    "description": "Here comes the documentation of the api for  [Iriks-IT](https://api.iriks-it.nl)",
+    "termsOfService": "https://iriks-it.nl/api-terms/",
+    "contact": {
+      "email": "devop@iriks.it",
+      "name": "Matthijs Iriks",
+      "url": "https://iriks-it.nl/"
+    },
+    "x-logo": {
+      "url": "https://iriks-it.nl/logo.png",
+      "backgroundColor": "#FFFFFF",
+      "altText": "Iriks-IT Logo"
+    },
+    "version": "1.0.0"
+  },
+  "externalDocs": {
+    "description": "Find out more about us here.",
+    "url": "https://iriks-it.nl"
+  },
+  "servers": [
+    {
+      "url": "https://api.iriks-it.nl/kraken"
+    }
+  ],
+  "tags": [
+    {
+      "name": "basics",
+      "description": "The basics",
+      "externalDocs": {
+        "description": "",
+        "url": ""
+      }
+    },
+    {
+      "name": "quotes",
+      "description": "Calls related to quotes",
+      "externalDocs": {
+        "description": "",
+        "url": ""
+      }
+    },
+    {
+      "name": "dumpert",
+      "description": "Calls related to Dumpert",
+      "externalDocs": {
+        "description": "",
+        "url": ""
+      }
+    },
+    {
+      "name": "wordpress",
+      "description": "Calls related to WordPress",
+      "externalDocs": {
+        "description": "",
+        "url": ""
+      }
+    }
+  ],
+  "paths": {
+    "/docs": {
+      "get": {
+        "tags": [
+          "basics"
+        ],
+        "summary": "/docs",
+        "description": "Need a link to the documentation ? here is the most up2date link.",
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/infoResponse"
+                }
+              }
+            }
+          },
+          "505": {
+            "description": "Request was not send over HTTPS",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/defaultApiResponse505"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/help": {
+      "get": {
+        "tags": [
+          "basics"
+        ],
+        "summary": "/help",
+        "description": "Need a link to the documentation ? here is the most up2date link.",
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/infoResponse"
+                }
+              }
+            }
+          },
+          "505": {
+            "description": "Request was not send over HTTPS",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/defaultApiResponse505"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "infoResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "error": {
+            "type": "boolean",
+            "default": false
+          },
+          "code": {
+            "type": "integer",
+            "format": "int32",
+            "example": 200
+          },
+          "message": {
+            "type": "string",
+            "example": "Welcome message"
+          },
+          "docsURL": {
+            "type": "string",
+            "example": "documentation url"
+          },
+          "baseURL": {
+            "type": "string",
+            "example": "api base url"
+          },
+          "version": {
+            "type": "string",
+            "example": "current version"
+          }
+        }
+      },
+      "defaultApiResponse401": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "default": false
+          },
+          "error": {
+            "type": "boolean",
+            "example": true
+          },
+          "code": {
+            "type": "integer",
+            "format": "int32",
+            "example": 401
+          },
+          "message": {
+            "type": "string",
+            "example": "Unauthorized, insufficient scope"
+          }
+        }
+      },
+      "defaultApiResponse404": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "default": false
+          },
+          "error": {
+            "type": "boolean",
+            "example": true
+          },
+          "code": {
+            "type": "integer",
+            "format": "int32",
+            "example": 404
+          },
+          "message": {
+            "type": "string",
+            "example": "Command not found with current user information"
+          }
+        }
+      },
+      "defaultApiResponse505": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "default": false
+          },
+          "error": {
+            "type": "boolean",
+            "example": true
+          },
+          "code": {
+            "type": "integer",
+            "format": "int32",
+            "example": 505
+          },
+          "message": {
+            "type": "string",
+            "example": "Request was not send over HTTPS"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "iriksit_oauth2": {
+        "type": "oauth2",
+        "description": "This needs to be placed in the header, with the Bearer prefix.",
+        "flows": {
+          "clientCredentials": {
+            "tokenUrl": "https://api.iriks-it.nl/oath2/authorize.php",
+            "refreshUrl": "https://api.iriks-it.nl/oath2/refresh.php",
+            "scopes": {
+              "basic-read": "allows read on basic flagged endpoints",
+              "basic-write": "allows write on basic flagged endpoints",
+              "wp_vulnerability-write": "allows write on basic flagged endpoints"
+            }
+          }
+        }
+      }
+    },
+    "requestBodies": {}
+  }
+}
