@@ -88,7 +88,15 @@
               }
             }
           }
-        }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "header"
+          }
+        ]
       }
     },
     "/help": {
