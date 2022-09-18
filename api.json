@@ -27,36 +27,19 @@
   ],
   "tags": [
     {
-      "name": "basics",
-      "description": "The basics",
-      "externalDocs": {
-        "description": "",
-        "url": ""
-      }
+      "name": "account"
     },
     {
-      "name": "quotes",
-      "description": "Calls related to quotes",
-      "externalDocs": {
-        "description": "",
-        "url": ""
-      }
+      "name": "basics"
     },
     {
-      "name": "dumpert",
-      "description": "Calls related to Dumpert",
-      "externalDocs": {
-        "description": "",
-        "url": ""
-      }
+      "name": "dumpert"
     },
     {
-      "name": "wordpress",
-      "description": "Calls related to WordPress",
-      "externalDocs": {
-        "description": "",
-        "url": ""
-      }
+      "name": "quotes"
+    },
+    {
+      "name": "wordpress"
     }
   ],
   "paths": {
@@ -123,6 +106,18 @@
           }
         },
         "operationId": "get.basic.help"
+      }
+    },
+    "/account/register": {
+      "post": {
+        "summary": "",
+        "operationId": "post.account.register",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "description": ""
       }
     }
   },
