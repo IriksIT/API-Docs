@@ -110,7 +110,7 @@
     },
     "/account/register": {
       "post": {
-        "summary": "",
+        "summary": "/account/register",
         "operationId": "post.account.register",
         "responses": {
           "200": {
