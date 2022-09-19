@@ -117,7 +117,10 @@
             "description": "OK"
           }
         },
-        "description": ""
+        "description": "",
+        "tags": [
+          "account"
+        ]
       }
     }
   },
