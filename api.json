@@ -230,7 +230,7 @@
     "requestBodies": {},
     "responses": {
       "default401": {
-        "description": "Default401 response from the API",
+        "description": "Unauthorized, insufficient scope",
         "content": {
           "application/json": {
             "schema": {
@@ -260,6 +260,16 @@
                 "message": {
                   "type": "string",
                   "default": "Unauthorized, insufficient scope"
+                }
+              }
+            },
+            "examples": {
+              "example-1": {
+                "value": {
+                  "success": false,
+                  "error": true,
+                  "code": 401,
+                  "message": "Unauthorized, insufficient scope"
                 }
               }
             }
@@ -321,7 +331,7 @@
         }
       },
       "default404": {
-        "description": "Default404 response from the API",
+        "description": "Command not found with current user credentials",
         "content": {
           "application/json": {
             "schema": {
@@ -351,6 +361,16 @@
                 "message": {
                   "type": "string",
                   "default": "Command not found with current user information"
+                }
+              }
+            },
+            "examples": {
+              "example-1": {
+                "value": {
+                  "success": false,
+                  "error": true,
+                  "code": 404,
+                  "message": "Command not found with current user credentials"
                 }
               }
             }
@@ -412,7 +432,7 @@
         }
       },
       "default505": {
-        "description": "Default505 response from the API",
+        "description": "Request was not send over HTTPS",
         "content": {
           "application/json": {
             "schema": {
@@ -442,6 +462,16 @@
                 "message": {
                   "type": "string",
                   "default": "Request was not send over HTTPS"
+                }
+              }
+            },
+            "examples": {
+              "example-1": {
+                "value": {
+                  "success": false,
+                  "error": true,
+                  "code": 505,
+                  "message": "Request was not send over HTTPS"
                 }
               }
             }
