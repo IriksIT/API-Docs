@@ -56,21 +56,41 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/infoResponse"
+                  "type": "object",
+                  "x-examples": {
+                    "example-1": {
+                      "success": true,
+                      "error": false,
+                      "code": 200,
+                      "message": "documentation is available on https://docs.iriks-it.nl/"
+                    }
+                  },
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "default": true
+                    },
+                    "error": {
+                      "type": "boolean",
+                      "default": false
+                    },
+                    "code": {
+                      "type": "integer",
+                      "default": 200,
+                      "format": "int32"
+                    },
+                    "message": {
+                      "type": "string",
+                      "default": "documentation is available on https://docs.iriks-it.nl/"
+                    }
+                  }
                 },
                 "examples": {}
               }
             }
           },
           "505": {
-            "description": "Request was not send over HTTPS",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/defaultApiResponse505"
-                }
-              }
-            }
+            "$ref": "#/components/responses/default505"
           }
         },
         "operationId": "get.basic.docs"
@@ -89,20 +109,40 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/infoResponse"
+                  "type": "object",
+                  "x-examples": {
+                    "example-1": {
+                      "success": true,
+                      "error": false,
+                      "code": 200,
+                      "message": "documentation is available on https://docs.iriks-it.nl/"
+                    }
+                  },
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "default": true
+                    },
+                    "error": {
+                      "type": "boolean",
+                      "default": false
+                    },
+                    "code": {
+                      "type": "integer",
+                      "default": 200,
+                      "format": "int32"
+                    },
+                    "message": {
+                      "type": "string",
+                      "default": "documentation is available on https://docs.iriks-it.nl/"
+                    }
+                  }
                 }
               }
             }
           },
           "505": {
-            "description": "Request was not send over HTTPS",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/defaultApiResponse505"
-                }
-              }
-            }
+            "$ref": "#/components/responses/default505"
           }
         },
         "operationId": "get.basic.help"
@@ -114,18 +154,51 @@
         "operationId": "post.account.register",
         "responses": {
           "200": {
-            "description": "OK"
-          },
-          "505": {
-            "description": "Request was not send over HTTPS",
-            "headers": {},
+            "description": "successful operation",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/defaultApiResponse505"
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "error": {
+                      "type": "boolean"
+                    },
+                    "code": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "docsURL": {
+                      "type": "string"
+                    },
+                    "baseURL": {
+                      "type": "string"
+                    },
+                    "version": {
+                      "type": "string"
+                    }
+                  },
+                  "x-examples": {
+                    "example-1": {
+                      "success": true,
+                      "error": false,
+                      "code": 200,
+                      "message": "Welcome message",
+                      "docsURL": "documentation url",
+                      "baseURL": "api base url",
+                      "version": "current version"
+                    }
+                  }
                 }
               }
             }
+          },
+          "505": {
+            "$ref": "#/components/responses/default505"
           }
         },
         "description": "Register your account here",
@@ -136,108 +209,7 @@
     }
   },
   "components": {
-    "schemas": {
-      "infoResponse": {
-        "type": "object",
-        "properties": {
-          "success": {
-            "type": "boolean",
-            "example": true
-          },
-          "error": {
-            "type": "boolean",
-            "default": false
-          },
-          "code": {
-            "type": "integer",
-            "format": "int32",
-            "example": 200
-          },
-          "message": {
-            "type": "string",
-            "example": "Welcome message"
-          },
-          "docsURL": {
-            "type": "string",
-            "example": "documentation url"
-          },
-          "baseURL": {
-            "type": "string",
-            "example": "api base url"
-          },
-          "version": {
-            "type": "string",
-            "example": "current version"
-          }
-        }
-      },
-      "defaultApiResponse401": {
-        "type": "object",
-        "properties": {
-          "success": {
-            "type": "boolean",
-            "default": false
-          },
-          "error": {
-            "type": "boolean",
-            "example": true
-          },
-          "code": {
-            "type": "integer",
-            "format": "int32",
-            "example": 401
-          },
-          "message": {
-            "type": "string",
-            "example": "Unauthorized, insufficient scope"
-          }
-        }
-      },
-      "defaultApiResponse404": {
-        "type": "object",
-        "properties": {
-          "success": {
-            "type": "boolean",
-            "default": false
-          },
-          "error": {
-            "type": "boolean",
-            "example": true
-          },
-          "code": {
-            "type": "integer",
-            "format": "int32",
-            "example": 404
-          },
-          "message": {
-            "type": "string",
-            "example": "Command not found with current user information"
-          }
-        }
-      },
-      "defaultApiResponse505": {
-        "type": "object",
-        "properties": {
-          "success": {
-            "type": "boolean",
-            "default": false
-          },
-          "error": {
-            "type": "boolean",
-            "example": true
-          },
-          "code": {
-            "type": "integer",
-            "format": "int32",
-            "example": 505
-          },
-          "message": {
-            "type": "string",
-            "example": "Request was not send over HTTPS"
-          }
-        }
-      }
-    },
+    "schemas": {},
     "securitySchemes": {
       "iriksit_oauth2": {
         "type": "oauth2",
@@ -255,6 +227,281 @@
         }
       }
     },
-    "requestBodies": {}
+    "requestBodies": {},
+    "responses": {
+      "default401": {
+        "description": "Default401 response from the API",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "x-examples": {
+                "example-1": {
+                  "success": false,
+                  "error": true,
+                  "code": 401,
+                  "message": "Unauthorized, insufficient scope"
+                }
+              },
+              "properties": {
+                "success": {
+                  "type": "boolean",
+                  "default": false
+                },
+                "error": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "code": {
+                  "type": "integer",
+                  "default": 401,
+                  "format": "int32"
+                },
+                "message": {
+                  "type": "string",
+                  "default": "Unauthorized, insufficient scope"
+                }
+              }
+            }
+          }
+        },
+        "headers": {
+          "Date": {
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "description": "Timestamp of the request"
+          },
+          "Server": {
+            "schema": {
+              "type": "string",
+              "default": "1337z0rs"
+            },
+            "description": "Server information"
+          },
+          "X-Powered-With": {
+            "schema": {
+              "type": "string",
+              "default": "Iriks-IT"
+            },
+            "description": "Credits"
+          },
+          "X-Powered-By": {
+            "schema": {
+              "type": "string",
+              "default": "Potato/5.2.17"
+            },
+            "description": "PHP information"
+          },
+          "X-RateLimit-Limit": {
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 25
+            },
+            "description": "Your total limit"
+          },
+          "X-RateLimit-Remaining": {
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 24
+            },
+            "description": "Your calls remaining"
+          },
+          "X-RateLimit-Reset-In": {
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 300
+            },
+            "description": "Your calls remaining will reset in x seconds"
+          }
+        }
+      },
+      "default404": {
+        "description": "Default404 response from the API",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "x-examples": {
+                "example-1": {
+                  "success": false,
+                  "error": true,
+                  "code": 404,
+                  "message": "Command not found with current user information"
+                }
+              },
+              "properties": {
+                "success": {
+                  "type": "boolean",
+                  "default": false
+                },
+                "error": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "code": {
+                  "type": "integer",
+                  "default": 404,
+                  "format": "int32"
+                },
+                "message": {
+                  "type": "string",
+                  "default": "Command not found with current user information"
+                }
+              }
+            }
+          }
+        },
+        "headers": {
+          "Date": {
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "description": "Timestamp of the request"
+          },
+          "Server": {
+            "schema": {
+              "type": "string",
+              "default": "1337z0rs"
+            },
+            "description": "Server information"
+          },
+          "X-Powered-With": {
+            "schema": {
+              "type": "string",
+              "default": "Iriks-IT"
+            },
+            "description": "Credits"
+          },
+          "X-Powered-By": {
+            "schema": {
+              "type": "string",
+              "default": "Potato/5.2.17"
+            },
+            "description": "PHP information"
+          },
+          "X-RateLimit-Limit": {
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 25
+            },
+            "description": "Your total limit"
+          },
+          "X-RateLimit-Remaining": {
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 24
+            },
+            "description": "Your calls remaining"
+          },
+          "X-RateLimit-Reset-In": {
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 300
+            },
+            "description": "Your calls remaining will reset in x seconds"
+          }
+        }
+      },
+      "default505": {
+        "description": "Default505 response from the API",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "x-examples": {
+                "example-1": {
+                  "success": false,
+                  "error": true,
+                  "code": 505,
+                  "message": "Request was not send over HTTPS"
+                }
+              },
+              "properties": {
+                "success": {
+                  "type": "boolean",
+                  "default": false
+                },
+                "error": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "code": {
+                  "type": "integer",
+                  "default": 505,
+                  "format": "int32"
+                },
+                "message": {
+                  "type": "string",
+                  "default": "Request was not send over HTTPS"
+                }
+              }
+            }
+          }
+        },
+        "headers": {
+          "Date": {
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "description": "Timestamp of the request"
+          },
+          "Server": {
+            "schema": {
+              "type": "string",
+              "default": "1337z0rs"
+            },
+            "description": "Server information"
+          },
+          "X-Powered-With": {
+            "schema": {
+              "type": "string",
+              "default": "Iriks-IT"
+            },
+            "description": "Credits"
+          },
+          "X-Powered-By": {
+            "schema": {
+              "type": "string",
+              "default": "Potato/5.2.17"
+            },
+            "description": "PHP information"
+          },
+          "X-RateLimit-Limit": {
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 25
+            },
+            "description": "Your total limit"
+          },
+          "X-RateLimit-Remaining": {
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 24
+            },
+            "description": "Your calls remaining"
+          },
+          "X-RateLimit-Reset-In": {
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 300
+            },
+            "description": "Your calls remaining will reset in x seconds"
+          }
+        }
+      }
+    }
   }
 }
