@@ -22,7 +22,7 @@
   },
   "servers": [
     {
-      "url": "https://api.iriks-it.nl/kraken"
+      "url": "https://api.iriks-it.nl/v1"
     }
   ],
   "tags": [
@@ -31,15 +31,6 @@
     },
     {
       "name": "basics"
-    },
-    {
-      "name": "dumpert"
-    },
-    {
-      "name": "quotes"
-    },
-    {
-      "name": "wordpress"
     }
   ],
   "paths": {
@@ -220,9 +211,9 @@
         "parameters": []
       }
     },
-    "/account/register": {
+    "/auth/register": {
       "post": {
-        "summary": "/account/register",
+        "summary": "/auth/register",
         "operationId": "post.account.register",
         "responses": {
           "200": {
