@@ -224,29 +224,34 @@
                   "type": "object",
                   "properties": {
                     "success": {
-                      "type": "boolean"
-                    },
-                    "error": {
-                      "type": "boolean"
+                      "type": "boolean",
+                      "default": true
                     },
                     "code": {
-                      "type": "integer"
+                      "type": "integer",
+                      "default": 200,
+                      "format": "int32"
+                    },
+                    "data": {
+                      "type": "object",
+                      "default": {
+                        "token": {
+                          "type": "string",
+                          "default": "1|aqWx2RpjFTtYsaOVi3M8df6p54VLKW23W6f48a0"
+                        },
+                        "name": {
+                          "type": "string",
+                          "default": "Silvia"
+                        }
+                      }
                     },
                     "message": {
-                      "type": "string"
-                    },
-                    "docsURL": {
-                      "type": "string"
-                    },
-                    "baseURL": {
-                      "type": "string"
-                    },
-                    "version": {
-                      "type": "string"
+                      "type": "string",
+                      "default": "User register successfully."
                     }
                   },
                   "x-examples": {
-                    "example-1": {
+                    "200": {
                       "success": true,
                       "error": false,
                       "code": 200,
@@ -267,7 +272,7 @@
         "requestBody": {
           "$ref": "#/components/requestBodies/account.register"
         },
-        "description": "Register your account here",
+        "description": "Register your account here, you still need to verify this account when done.",
         "tags": [
           "account"
         ]
