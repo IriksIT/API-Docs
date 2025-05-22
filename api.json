@@ -361,9 +361,9 @@
           }
         },
         "requestBody": {
-          "$ref": "#/components/requestBodies/account.register"
+          "$ref": "#/components/requestBodies/account.verify"
         },
-        "description": "Register your account here, you still need to verify this account when done.",
+        "description": "You found the verification code in your mail, now you can verify your account and start using it!",
         "tags": [
           "account"
         ]
@@ -400,6 +400,25 @@
         "xml": {
           "name": "Account register"
         }
+      },
+      "account.verify": {
+        "required": [
+          "email",
+          "code"
+        ],
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "silvia@iriks-it.nl"
+          },
+          "code": {
+            "type": "string",
+            "example": "1234-ABCD-5678-EDFG-1337"
+          }
+        },
+        "xml": {
+          "name": "Account register"
+        }
       }
     },
     "securitySchemes": {
@@ -425,6 +444,15 @@
           "application/json": {
             "schema": {
               "$ref": "#/components/schemas/account.register"
+            }
+          }
+        }
+      },
+      "account.verify": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/account.verify"
             }
           }
         }
