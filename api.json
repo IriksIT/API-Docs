@@ -527,10 +527,10 @@
       }
     },
     "securitySchemes": {
-      "bearerAuth": {
+      "Bearer Token": {
         "type": "http",
         "scheme": "bearer",
-        "description": "This needs to be placed in the header, with the Bearer prefix."
+        "description": "This needs to be placed in the header, with the Bearer prefix. please see the auth/login route for more info"
       }
     },
     "requestBodies": {
