@@ -264,6 +264,9 @@
             "$ref": "#/components/responses/default505"
           }
         },
+        "requestBody": {
+          "$ref": "#/components/requestBodies/account.register"
+        },
         "description": "Register your account here",
         "tags": [
           "account"
@@ -272,7 +275,37 @@
     }
   },
   "components": {
-    "schemas": {},
+    "schemas": {
+      "account.register": {
+        "required": [
+          "name",
+          "email",
+          "password",
+          "c_password"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Silvia"
+          },
+          "email": {
+            "type": "string",
+            "example": "silvia@iriks-it.nl"
+          },
+          "password": {
+            "type": "string",
+            "example": "g!v3m3f00dn0w!"
+          },
+          "c_password": {
+            "type": "string",
+            "example": "g!v3m3f00dn0w!"
+          }
+        },
+        "xml": {
+          "name": "Account register"
+        }
+      }
+    },
     "securitySchemes": {
       "iriksit_oauth2": {
         "type": "oauth2",
@@ -290,7 +323,17 @@
         }
       }
     },
-    "requestBodies": {},
+    "requestBodies": {
+      "account.register": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/account.register"
+            }
+          }
+        }
+      }
+    },
     "responses": {
       "default401": {
         "description": "Unauthorized, insufficient scope",
