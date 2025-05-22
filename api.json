@@ -248,6 +248,114 @@
               }
             }
           },
+          "409": {
+            "description": "Registration Error. email already in use!",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "default": false
+                    },
+                    "code": {
+                      "type": "integer",
+                      "default": 409,
+                      "format": "int32"
+                    },
+                    "data": {
+                      "type": "string",
+                      "default": "Account already exists, please choose a different one."
+                    },
+                    "message": {
+                      "type": "string",
+                      "default": "Registration Error."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "505": {
+            "$ref": "#/components/responses/default505"
+          }
+        },
+        "requestBody": {
+          "$ref": "#/components/requestBodies/account.register"
+        },
+        "description": "Register your account here, you still need to verify this account when done.",
+        "tags": [
+          "account"
+        ]
+      }
+    },
+    "/auth/verify": {
+      "post": {
+        "summary": "/auth/verify",
+        "operationId": "post.account.verify",
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "default": true
+                    },
+                    "code": {
+                      "type": "integer",
+                      "default": 200,
+                      "format": "int32"
+                    },
+                    "data": {
+                      "type": "object",
+                      "default": "User verified successfully."
+                    },
+                    "message": {
+                      "type": "string",
+                      "default": "Validation Success."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Validation Error, verify process only",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "default": false
+                    },
+                    "code": {
+                      "type": "integer",
+                      "default": 409,
+                      "format": "int32"
+                    },
+                    "data": {
+                      "type": "string",
+                      "default": "Something bad broke, please contact: api@iriks-it.nl"
+                    },
+                    "message": {
+                      "type": "string",
+                      "default": "Validation Error."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "406": {
+            "$ref": "#/components/responses/default406"
+          },
           "505": {
             "$ref": "#/components/responses/default505"
           }
@@ -437,6 +545,64 @@
                   "error": true,
                   "code": 404,
                   "message": "Command not found with current user credentials"
+                }
+              }
+            }
+          }
+        },
+        "headers": {
+          "X-RateLimit-Limit": {
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 25
+            },
+            "description": "Your total limit"
+          },
+          "X-RateLimit-Remaining": {
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 24
+            },
+            "description": "Your calls remaining"
+          },
+          "X-RateLimit-Reset-In": {
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 300
+            },
+            "description": "Your calls remaining will reset in x seconds"
+          }
+        }
+      },
+      "default406": {
+        "description": "Validation Error, consult data object!",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean",
+                  "default": false
+                },
+                "code": {
+                  "type": "integer",
+                  "default": 406,
+                  "format": "int32"
+                },
+                "message": {
+                  "type": "string",
+                  "default": "Validation Error."
+                },
+                "data": {
+                  "type": "object",
+                  "default": {
+                    "field1": "The field1 field is required.",
+                    "field2": "The field2 field must match field1."
+                  }
                 }
               }
             }
