@@ -371,6 +371,89 @@
           "account"
         ]
       }
+    },
+    "/auth/login": {
+      "post": {
+        "summary": "/auth/login",
+        "operationId": "post.account.login",
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "default": true
+                    },
+                    "code": {
+                      "type": "integer",
+                      "default": 200,
+                      "format": "int32"
+                    },
+                    "data": {
+                      "type": "object",
+                      "default": {
+                        "token": "3|qF30ZVY2xW1OXJieMLXhUXZowwgVGVbm6F3kSoT714e04dec",
+                        "expire": "2025-01-30 05:46:46",
+                        "name": "Silvia"
+                      }
+                    },
+                    "message": {
+                      "type": "string",
+                      "default": "Validation Success."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Login Error, verify first!",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "default": false
+                    },
+                    "code": {
+                      "type": "integer",
+                      "default": 409,
+                      "format": "int32"
+                    },
+                    "data": {
+                      "type": "string",
+                      "default": "Account hasn't been verified yet, please verify this first!"
+                    },
+                    "message": {
+                      "type": "string",
+                      "default": "Unauthorised"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "406": {
+            "$ref": "#/components/responses/default406"
+          },
+          "505": {
+            "$ref": "#/components/responses/default505"
+          }
+        },
+        "requestBody": {
+          "$ref": "#/components/requestBodies/account.login"
+        },
+        "description": "You want a Bearer Token? this is the way to get it!",
+        "tags": [
+          "account"
+        ]
+      }
     }
   },
   "components": {
@@ -420,7 +503,26 @@
           }
         },
         "xml": {
-          "name": "Account register"
+          "name": "Account verify"
+        }
+      },
+      "account.login": {
+        "required": [
+          "email",
+          "password"
+        ],
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "silvia@iriks-it.nl"
+          },
+          "password": {
+            "type": "string",
+            "example": "g!v3m3f00dn0w!"
+          }
+        },
+        "xml": {
+          "name": "Account login"
         }
       }
     },
@@ -456,6 +558,15 @@
           "application/json": {
             "schema": {
               "$ref": "#/components/schemas/account.verify"
+            }
+          }
+        }
+      },
+      "account.login": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/account.login"
             }
           }
         }
