@@ -527,20 +527,10 @@
       }
     },
     "securitySchemes": {
-      "iriksit_oauth2": {
-        "type": "oauth2",
-        "description": "This needs to be placed in the header, with the Bearer prefix.",
-        "flows": {
-          "clientCredentials": {
-            "tokenUrl": "https://api.iriks-it.nl/oath2/authorize.php",
-            "refreshUrl": "https://api.iriks-it.nl/oath2/refresh.php",
-            "scopes": {
-              "basic-read": "allows read on basic flagged endpoints",
-              "basic-write": "allows write on basic flagged endpoints",
-              "wp_vulnerability-write": "allows write on basic flagged endpoints"
-            }
-          }
-        }
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "This needs to be placed in the header, with the Bearer prefix."
       }
     },
     "requestBodies": {
