@@ -277,6 +277,9 @@
               }
             }
           },
+          "406": {
+            "$ref": "#/components/responses/default406"
+          },
           "505": {
             "$ref": "#/components/responses/default505"
           }
