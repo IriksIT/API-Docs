@@ -235,30 +235,13 @@
                     "data": {
                       "type": "object",
                       "default": {
-                        "token": {
-                          "type": "string",
-                          "default": "1|aqWx2RpjFTtYsaOVi3M8df6p54VLKW23W6f48a0"
-                        },
-                        "name": {
-                          "type": "string",
-                          "default": "Silvia"
-                        }
+                        "token": "1|aqWx2RpjFTtYsaOVi3M8df6p54VLKW23W6f48a0",
+                        "name": "Silvia"
                       }
                     },
                     "message": {
                       "type": "string",
                       "default": "User register successfully."
-                    }
-                  },
-                  "x-examples": {
-                    "200": {
-                      "success": true,
-                      "error": false,
-                      "code": 200,
-                      "message": "Welcome message",
-                      "docsURL": "documentation url",
-                      "baseURL": "api base url",
-                      "version": "current version"
                     }
                   }
                 }
