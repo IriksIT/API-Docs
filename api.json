@@ -1,665 +1,1244 @@
 {
-  "openapi": "3.0.1",
-  "info": {
-    "title": "Iriks-IT API",
-    "description": "Here comes the documentation of the api for  [Iriks-IT](https://api.iriks-it.nl)",
-    "termsOfService": "https://iriks-it.nl/api-terms/",
-    "contact": {
-      "email": "devop@iriks.it",
-      "name": "Matthijs Iriks",
-      "url": "https://iriks-it.nl/"
+    "openapi": "3.0.3",
+    "info": {
+        "title": "Iriks-IT API",
+        "description": "The official API for [Iriks-IT](https://iriks-it.nl). Powering tools, collections, and mischief since Sam knocked the first server off the desk.\n\n> *\"Why did Sam sit on the API server? To keep an eye on the mouse.\"*\n\nAll authenticated endpoints require a Bearer token obtained via `/auth/login`. Tokens expire after **24 hours** — roughly the time it takes Silvia to forgive you for waking her up.",
+        "termsOfService": "https://iriks-it.nl/api-terms/",
+        "contact": {
+            "email": "devop@iriks-it.nl",
+            "name": "Matthijs Iriks",
+            "url": "https://iriks-it.nl/"
+        },
+        "x-logo": {
+            "url": "https://iriks-it.nl/logo.png",
+            "backgroundColor": "#FFFFFF",
+            "altText": "Iriks-IT Logo"
+        },
+        "version": "0.12.0"
     },
-    "x-logo": {
-      "url": "https://iriks-it.nl/logo.png",
-      "backgroundColor": "#FFFFFF",
-      "altText": "Iriks-IT Logo"
+    "externalDocs": {
+        "description": "Find out more about Iriks-IT",
+        "url": "https://iriks-it.nl"
     },
-    "version": "1.0.0"
-  },
-  "externalDocs": {
-    "description": "Find out more about us here.",
-    "url": "https://iriks-it.nl"
-  },
-  "servers": [
-    {
-      "url": "https://api.iriks-it.nl/v1"
-    }
-  ],
-  "tags": [
-    {
-      "name": "account"
-    }
-  ],
-  "paths": {
-    "/auth/register": {
-      "post": {
-        "summary": "/auth/register",
-        "operationId": "post.account.register",
+    "servers": [
+        {
+            "url": "https://api.iriks-it.nl/v1",
+            "description": "Production — where Sam and Silvia live"
+        }
+    ],
+    "security": [
+        {
+            "BearerToken": []
+        }
+    ],
+    "tags": [
+        {
+            "name": "account",
+            "description": "Purr-fectly secure account management. Sam and Silvia got in, so can you. Email verification required — no exceptions, not even for cats."
+        },
+        {
+            "name": "products",
+            "description": "Product catalog API. Sam has already knocked most items off the shelf, but they're all still in the database."
+        },
+        {
+            "name": "hotwheels",
+            "description": "Hot Wheels collection tracker. Silvia tried to bat a few under the sofa, but every car is accounted for."
+        },
+        {
+            "name": "tools",
+            "description": "Utility endpoints for IP intelligence. Sam sniffs every packet — you get a nice JSON response instead."
+        }
+    ],
+    "paths": {
+        "/auth/register": {
+            "post": {
+                "tags": ["account"],
+                "summary": "Register a new account",
+                "operationId": "post.account.register",
+                "description": "Register your account here. You will receive a verification email — check your inbox, not your spam (or your cat's food bowl). You must verify before you can log in.",
+                "security": [],
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/account.register"
+                },
+                "responses": {
+                    "200": {
+                        "description": "Account registered successfully. Check your email to verify.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.register"
+                                },
+                                "example": {
+                                    "success": true,
+                                    "code": 200,
+                                    "data": {
+                                        "token": "1|aqWx2RpjFTtYsaOVi3M8df6p54VLKW23W6f48a0",
+                                        "name": "Silvia"
+                                    },
+                                    "message": "User register successfully."
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Email already in use.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.error"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "code": 409,
+                                    "data": "Account already exists, please choose a different one.",
+                                    "message": "Registration Error."
+                                }
+                            }
+                        }
+                    },
+                    "406": {
+                        "$ref": "#/components/responses/default406"
+                    },
+                    "505": {
+                        "$ref": "#/components/responses/default505"
+                    }
+                }
+            }
+        },
+        "/auth/verify": {
+            "post": {
+                "tags": ["account"],
+                "summary": "Verify your account",
+                "operationId": "post.account.verify",
+                "description": "You found the verification code in your email — now submit it here to unlock API access. Unlike Sam, who needs zero verification to knock things off tables.",
+                "security": [],
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/account.verify"
+                },
+                "responses": {
+                    "200": {
+                        "description": "Account verified. You may now log in.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.success"
+                                },
+                                "example": {
+                                    "success": true,
+                                    "code": 200,
+                                    "data": "User verified successfully.",
+                                    "message": "Validation Success."
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Verification failed — invalid or expired code.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.error"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "code": 409,
+                                    "data": "Something bad broke, please contact: api@iriks-it.nl",
+                                    "message": "Validation Error."
+                                }
+                            }
+                        }
+                    },
+                    "406": {
+                        "$ref": "#/components/responses/default406"
+                    },
+                    "505": {
+                        "$ref": "#/components/responses/default505"
+                    }
+                }
+            }
+        },
+        "/auth/login": {
+            "post": {
+                "tags": ["account"],
+                "summary": "Log in and obtain a Bearer token",
+                "operationId": "post.account.login",
+                "description": "Exchange your credentials for a Bearer token. Tokens expire after 24 hours — about the same time Sam takes to forgive you for closing the bedroom door. You must have verified your account first.",
+                "security": [],
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/account.login"
+                },
+                "responses": {
+                    "200": {
+                        "description": "Login successful. Use the returned token as `Authorization: Bearer <token>` on all protected endpoints.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.login"
+                                },
+                                "example": {
+                                    "success": true,
+                                    "code": 200,
+                                    "data": {
+                                        "token": "3|qF30ZVY2xW1OXJieMLXhUXZowwgVGVbm6F3kSoT714e04dec",
+                                        "expire": "2025-01-30 05:46:46",
+                                        "name": "Silvia"
+                                    },
+                                    "message": "Validation Success."
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Account not verified yet.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.error"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "code": 409,
+                                    "data": "Account hasn't been verified yet, please verify this first!",
+                                    "message": "Unauthorised"
+                                }
+                            }
+                        }
+                    },
+                    "406": {
+                        "$ref": "#/components/responses/default406"
+                    },
+                    "505": {
+                        "$ref": "#/components/responses/default505"
+                    }
+                }
+            }
+        },
+        "/products": {
+            "get": {
+                "tags": ["products"],
+                "summary": "List all products",
+                "operationId": "get.products.index",
+                "description": "Returns all products. Sam has inspected every single one and found most of them interesting enough to sit on.",
+                "responses": {
+                    "200": {
+                        "description": "Products retrieved successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": { "type": "boolean", "example": true },
+                                        "code": { "type": "integer", "example": 200 },
+                                        "data": {
+                                            "type": "array",
+                                            "items": { "$ref": "#/components/schemas/product" }
+                                        },
+                                        "message": { "type": "string", "example": "Products retrieved successfully." }
+                                    }
+                                },
+                                "example": {
+                                    "success": true,
+                                    "code": 200,
+                                    "data": [
+                                        {
+                                            "id": 1,
+                                            "name": "Premium Cat Food — Sam's Choice",
+                                            "detail": "Sam rated this 10/10. He ate the whole bag in one sitting and then knocked the empty bag off the counter.",
+                                            "created_at": "19/04/2026",
+                                            "updated_at": "19/04/2026"
+                                        },
+                                        {
+                                            "id": 2,
+                                            "name": "Interactive Laser Pointer — Silvia Edition",
+                                            "detail": "Silvia has been chasing this dot since 2023. She has yet to catch it. We consider this a feature.",
+                                            "created_at": "19/04/2026",
+                                            "updated_at": "19/04/2026"
+                                        }
+                                    ],
+                                    "message": "Products retrieved successfully."
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/default401"
+                    }
+                }
+            },
+            "post": {
+                "tags": ["products"],
+                "summary": "Create a product",
+                "operationId": "post.products.store",
+                "description": "Create a new product. Sam will immediately investigate it and determine whether it belongs on the floor.",
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/product.store"
+                },
+                "responses": {
+                    "200": {
+                        "description": "Product created successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": { "type": "boolean", "example": true },
+                                        "code": { "type": "integer", "example": 200 },
+                                        "data": { "$ref": "#/components/schemas/product" },
+                                        "message": { "type": "string", "example": "Product created successfully." }
+                                    }
+                                },
+                                "example": {
+                                    "success": true,
+                                    "code": 200,
+                                    "data": {
+                                        "id": 3,
+                                        "name": "Catnip Deluxe",
+                                        "detail": "Silvia's weakness. Sam pretends he doesn't care, then steals it at 3 AM.",
+                                        "created_at": "19/04/2026",
+                                        "updated_at": "19/04/2026"
+                                    },
+                                    "message": "Product created successfully."
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/default401"
+                    },
+                    "406": {
+                        "$ref": "#/components/responses/default406"
+                    }
+                }
+            }
+        },
+        "/products/{id}": {
+            "get": {
+                "tags": ["products"],
+                "summary": "Get a product",
+                "operationId": "get.products.show",
+                "description": "Retrieve a single product by ID. If Sam knocked it off the shelf, it still exists in the database.",
+                "parameters": [
+                    { "$ref": "#/components/parameters/id" }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Product retrieved successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": { "type": "boolean", "example": true },
+                                        "code": { "type": "integer", "example": 200 },
+                                        "data": { "$ref": "#/components/schemas/product" },
+                                        "message": { "type": "string", "example": "Product retrieved successfully." }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/default401"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/default404"
+                    }
+                }
+            },
+            "put": {
+                "tags": ["products"],
+                "summary": "Update a product",
+                "operationId": "put.products.update",
+                "description": "Update an existing product. Silvia reviewed the change and gave it a slow blink of approval.",
+                "parameters": [
+                    { "$ref": "#/components/parameters/id" }
+                ],
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/product.store"
+                },
+                "responses": {
+                    "200": {
+                        "description": "Product updated successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": { "type": "boolean", "example": true },
+                                        "code": { "type": "integer", "example": 200 },
+                                        "data": { "$ref": "#/components/schemas/product" },
+                                        "message": { "type": "string", "example": "Product updated successfully." }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/default401"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/default404"
+                    },
+                    "406": {
+                        "$ref": "#/components/responses/default406"
+                    }
+                }
+            },
+            "delete": {
+                "tags": ["products"],
+                "summary": "Delete a product",
+                "operationId": "delete.products.destroy",
+                "description": "Permanently delete a product. Unlike Sam's attitude when you're five minutes late with breakfast, this action cannot be taken back.",
+                "parameters": [
+                    { "$ref": "#/components/parameters/id" }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Product deleted successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": { "type": "boolean", "example": true },
+                                        "code": { "type": "integer", "example": 200 },
+                                        "data": { "type": "array", "items": {}, "example": [] },
+                                        "message": { "type": "string", "example": "Product deleted successfully." }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/default401"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/default404"
+                    }
+                }
+            }
+        },
+        "/hotwheels": {
+            "get": {
+                "tags": ["hotwheels"],
+                "summary": "List all Hot Wheels",
+                "operationId": "get.hotwheels.index",
+                "description": "Returns the full Hot Wheels collection. Silvia once batted a 1970 Dodge Charger under the sofa. It was recovered. It is in this list.",
+                "responses": {
+                    "200": {
+                        "description": "Hot Wheels retrieved successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": { "type": "boolean", "example": true },
+                                        "code": { "type": "integer", "example": 200 },
+                                        "data": {
+                                            "type": "array",
+                                            "items": { "$ref": "#/components/schemas/hotwheels" }
+                                        },
+                                        "message": { "type": "string", "example": "Hot Wheels retrieved successfully." }
+                                    }
+                                },
+                                "example": {
+                                    "success": true,
+                                    "code": 200,
+                                    "data": [
+                                        {
+                                            "id": 1,
+                                            "user": 1,
+                                            "condition": "Mint",
+                                            "in_packing": true,
+                                            "toy_num": "HW24-001",
+                                            "col_num": "001/250",
+                                            "model": "Paw-rsche 911 GT3",
+                                            "series": "Sam's Garage",
+                                            "series_num": "1/10",
+                                            "year": 2024,
+                                            "photo_url": "https://example.com/hw/paw-rsche-911.jpg",
+                                            "detail": "Sam sat on the box once but it survived. Purr-fect condition.",
+                                            "created_at": "19/04/2026",
+                                            "updated_at": "19/04/2026"
+                                        },
+                                        {
+                                            "id": 2,
+                                            "user": 1,
+                                            "condition": "Good",
+                                            "in_packing": false,
+                                            "toy_num": "HW24-002",
+                                            "col_num": "002/250",
+                                            "model": "Meow-stang GT500",
+                                            "series": "Silvia's Picks",
+                                            "series_num": "2/10",
+                                            "year": 2024,
+                                            "photo_url": "https://example.com/hw/meow-stang.jpg",
+                                            "detail": "Silvia batted it off the shelf exactly once. We consider it loved.",
+                                            "created_at": "19/04/2026",
+                                            "updated_at": "19/04/2026"
+                                        }
+                                    ],
+                                    "message": "Hot Wheels retrieved successfully."
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/default401"
+                    }
+                }
+            },
+            "post": {
+                "tags": ["hotwheels"],
+                "summary": "Add a Hot Wheels car",
+                "operationId": "post.hotwheels.store",
+                "description": "Add a new car to the collection. Sam will judge its aerodynamics by sniffing it.",
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/hotwheels.store"
+                },
+                "responses": {
+                    "200": {
+                        "description": "Car added to the collection successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": { "type": "boolean", "example": true },
+                                        "code": { "type": "integer", "example": 200 },
+                                        "data": { "$ref": "#/components/schemas/hotwheels" },
+                                        "message": { "type": "string", "example": "Product created successfully." }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/default401"
+                    },
+                    "406": {
+                        "$ref": "#/components/responses/default406"
+                    }
+                }
+            }
+        },
+        "/hotwheels/{id}": {
+            "get": {
+                "tags": ["hotwheels"],
+                "summary": "Get a Hot Wheels car",
+                "operationId": "get.hotwheels.show",
+                "description": "Get a specific car from the collection. Even if Sam licked it, it's still in the database.",
+                "parameters": [
+                    { "$ref": "#/components/parameters/id" }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Car retrieved successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": { "type": "boolean", "example": true },
+                                        "code": { "type": "integer", "example": 200 },
+                                        "data": { "$ref": "#/components/schemas/hotwheels" },
+                                        "message": { "type": "string", "example": "Product retrieved successfully." }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/default401"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/default404"
+                    }
+                }
+            },
+            "put": {
+                "tags": ["hotwheels"],
+                "summary": "Update a Hot Wheels car",
+                "operationId": "put.hotwheels.update",
+                "description": "Update a car's name or detail. Silvia approved this endpoint with a slow blink.",
+                "parameters": [
+                    { "$ref": "#/components/parameters/id" }
+                ],
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/hotwheels.update"
+                },
+                "responses": {
+                    "200": {
+                        "description": "Car updated successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": { "type": "boolean", "example": true },
+                                        "code": { "type": "integer", "example": 200 },
+                                        "data": { "$ref": "#/components/schemas/hotwheels" },
+                                        "message": { "type": "string", "example": "Product updated successfully." }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/default401"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/default404"
+                    },
+                    "406": {
+                        "$ref": "#/components/responses/default406"
+                    }
+                }
+            },
+            "delete": {
+                "tags": ["hotwheels"],
+                "summary": "Delete a Hot Wheels car",
+                "operationId": "delete.hotwheels.destroy",
+                "description": "Remove a car from the collection. More permanent than Silvia hiding it under the fridge.",
+                "parameters": [
+                    { "$ref": "#/components/parameters/id" }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Car deleted from the collection.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": { "type": "boolean", "example": true },
+                                        "code": { "type": "integer", "example": 200 },
+                                        "data": { "type": "array", "items": {}, "example": [] },
+                                        "message": { "type": "string", "example": "Hot Wheels deleted successfully." }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/default401"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/default404"
+                    }
+                }
+            }
+        },
+        "/tools/ip/{ip}": {
+            "get": {
+                "tags": ["tools"],
+                "summary": "Look up an IP address",
+                "operationId": "get.tools.ip.show",
+                "description": "Returns geolocation, ASN, proxy detection, and AbuseIPDB threat intelligence for an IPv4 or IPv6 address. Sam sniffs every packet — you get structured JSON.\n\nRequires the `ip.lookup` permission scope on your token.\n\n**Caching:** AbuseIPDB results are cached for 14 days per IP to stay well within rate limits. Fresh data is fetched automatically when the cache expires.",
+                "parameters": [
+                    {
+                        "name": "ip",
+                        "in": "path",
+                        "required": true,
+                        "description": "The IPv4 or IPv6 address to look up. Sam's current IP is classified.",
+                        "schema": {
+                            "type": "string",
+                            "examples": ["118.25.6.39", "2001:db8::1", "1.1.1.1"]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "IP data retrieved successfully. Sam sniffed it and found no suspicious treats.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": { "type": "boolean", "example": true },
+                                        "code": { "type": "integer", "example": 200 },
+                                        "data": { "$ref": "#/components/schemas/ip.lookup" },
+                                        "message": { "type": "string", "example": "IP data retrieved successfully." }
+                                    }
+                                },
+                                "example": {
+                                    "success": true,
+                                    "code": 200,
+                                    "data": {
+                                        "ip": "118.25.6.39",
+                                        "location": {
+                                            "country_code": "CN",
+                                            "country_name": "China",
+                                            "region_name": "Guangdong",
+                                            "city_name": "Shenzhen",
+                                            "latitude": 22.5431,
+                                            "longitude": 114.0579,
+                                            "zip_code": "518000",
+                                            "time_zone": "+08:00"
+                                        },
+                                        "country": {
+                                            "alpha3_code": "CHN",
+                                            "numeric_code": "156",
+                                            "capital": "Beijing",
+                                            "currency_code": "CNY",
+                                            "currency_name": "Yuan Renminbi",
+                                            "currency_symbol": "¥",
+                                            "cctld": ".cn",
+                                            "idd_code": "86",
+                                            "population": 1411750000,
+                                            "total_area": 9596960
+                                        },
+                                        "continent": {
+                                            "code": "AS",
+                                            "name": "Asia"
+                                        },
+                                        "timezone": {
+                                            "olson": "Asia/Shanghai",
+                                            "abbreviation": "CST",
+                                            "dst_start": null,
+                                            "dst_end": null
+                                        },
+                                        "metro": null,
+                                        "asn": {
+                                            "asn": "AS45090",
+                                            "organization": "Tencent Cloud Computing (Beijing) Co. Ltd",
+                                            "network": "118.25.0.0/16"
+                                        },
+                                        "proxy": {
+                                            "is_proxy": true,
+                                            "is_vpn": false,
+                                            "proxy_type": "DCH",
+                                            "country_code": "CN",
+                                            "country_name": "China",
+                                            "region_name": "Guangdong",
+                                            "city_name": "Shenzhen",
+                                            "isp": "Tencent Cloud Computing",
+                                            "domain": "tencent.com",
+                                            "usage_type": "Data Center/Web Hosting/Transit",
+                                            "asn": "AS45090",
+                                            "as_name": "Tencent Cloud",
+                                            "last_seen": 1,
+                                            "threat": "SPAM",
+                                            "provider": null,
+                                            "fraud_score": 75
+                                        },
+                                        "threat": {
+                                            "score": 75,
+                                            "is_proxy": true,
+                                            "is_vpn": false,
+                                            "is_threat": true,
+                                            "reasons": [
+                                                "Hosting / data center IP",
+                                                "Threat category: SPAM"
+                                            ]
+                                        },
+                                        "abuseipdb": {
+                                            "abuse_confidence_score": 100,
+                                            "is_public": true,
+                                            "ip_version": 4,
+                                            "is_whitelisted": false,
+                                            "country_code": "CN",
+                                            "country_name": "China",
+                                            "usage_type": "Data Center/Web Hosting/Transit",
+                                            "isp": "Tencent Cloud Computing (Beijing) Co. Ltd",
+                                            "domain": "tencent.com",
+                                            "hostnames": [],
+                                            "is_tor": false,
+                                            "total_reports": 42,
+                                            "num_distinct_users": 9,
+                                            "last_reported_at": "2024-01-15T10:00:00+00:00",
+                                            "checked_at": "2026-04-19T14:00:00+00:00",
+                                            "reports": [
+                                                {
+                                                    "reported_at": "2024-01-15T10:00:00+00:00",
+                                                    "categories": [18, 22],
+                                                    "comment": "Sam detected suspicious SSH traffic from this IP at 3 AM. He woke up the admin by sitting on the keyboard.",
+                                                    "reporter_country_code": "NL",
+                                                    "reporter_country_name": "Netherlands"
+                                                },
+                                                {
+                                                    "reported_at": "2024-01-10T08:30:00+00:00",
+                                                    "categories": [22],
+                                                    "comment": "Silvia noticed this IP sniffing her ports. She hissed at it and reported it immediately.",
+                                                    "reporter_country_code": "NL",
+                                                    "reporter_country_name": "Netherlands"
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "message": "IP data retrieved successfully."
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/default401"
+                    },
+                    "403": {
+                        "description": "Missing `ip.lookup` permission scope on your token.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/response.error" },
+                                "example": {
+                                    "success": false,
+                                    "code": 403,
+                                    "data": "",
+                                    "message": "You do not have permission to perform IP lookups."
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "The provided value is not a valid IP address. Even Sam knows `meow` is not an IP.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/response.error" },
+                                "example": {
+                                    "success": false,
+                                    "code": 422,
+                                    "data": "",
+                                    "message": "The provided value is not a valid IP address."
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "parameters": {
+            "id": {
+                "name": "id",
+                "in": "path",
+                "required": true,
+                "description": "The resource ID. Sam starts counting from 1.",
+                "schema": {
+                    "type": "integer",
+                    "format": "int64",
+                    "example": 1
+                }
+            }
+        },
+        "schemas": {
+            "response.success": {
+                "type": "object",
+                "properties": {
+                    "success": { "type": "boolean", "example": true },
+                    "code": { "type": "integer", "format": "int32", "example": 200 },
+                    "data": {},
+                    "message": { "type": "string" }
+                }
+            },
+            "response.error": {
+                "type": "object",
+                "properties": {
+                    "success": { "type": "boolean", "example": false },
+                    "code": { "type": "integer", "format": "int32" },
+                    "data": {},
+                    "message": { "type": "string" }
+                }
+            },
+            "response.register": {
+                "type": "object",
+                "properties": {
+                    "success": { "type": "boolean", "example": true },
+                    "code": { "type": "integer", "format": "int32", "example": 200 },
+                    "data": {
+                        "type": "object",
+                        "properties": {
+                            "token": { "type": "string", "example": "1|aqWx2RpjFTtYsaOVi3M8df6p54VLKW23W6f48a0" },
+                            "name": { "type": "string", "example": "Silvia" }
+                        }
+                    },
+                    "message": { "type": "string", "example": "User register successfully." }
+                }
+            },
+            "response.login": {
+                "type": "object",
+                "properties": {
+                    "success": { "type": "boolean", "example": true },
+                    "code": { "type": "integer", "format": "int32", "example": 200 },
+                    "data": {
+                        "type": "object",
+                        "properties": {
+                            "token": { "type": "string", "example": "3|qF30ZVY2xW1OXJieMLXhUXZowwgVGVbm6F3kSoT714e04dec" },
+                            "expire": { "type": "string", "format": "date-time", "example": "2026-04-20 05:46:46" },
+                            "name": { "type": "string", "example": "Silvia" }
+                        }
+                    },
+                    "message": { "type": "string", "example": "Validation Success." }
+                }
+            },
+            "account.register": {
+                "required": ["name", "email", "password", "c_password"],
+                "type": "object",
+                "properties": {
+                    "name": { "type": "string", "example": "Silvia" },
+                    "email": { "type": "string", "format": "email", "example": "silvia@iriks-it.nl" },
+                    "password": { "type": "string", "format": "password", "example": "g!v3m3f00dn0w!" },
+                    "c_password": { "type": "string", "format": "password", "example": "g!v3m3f00dn0w!" }
+                }
+            },
+            "account.verify": {
+                "required": ["email", "code"],
+                "type": "object",
+                "properties": {
+                    "email": { "type": "string", "format": "email", "example": "silvia@iriks-it.nl" },
+                    "code": { "type": "string", "example": "1234-ABCD-5678-EDFG-1337" }
+                }
+            },
+            "account.login": {
+                "required": ["email", "password"],
+                "type": "object",
+                "properties": {
+                    "email": { "type": "string", "format": "email", "example": "silvia@iriks-it.nl" },
+                    "password": { "type": "string", "format": "password", "example": "g!v3m3f00dn0w!" }
+                }
+            },
+            "product": {
+                "type": "object",
+                "properties": {
+                    "id": { "type": "integer", "format": "int64", "example": 1 },
+                    "name": { "type": "string", "example": "Premium Cat Food — Sam's Choice" },
+                    "detail": { "type": "string", "example": "Sam rated this 10/10. He ate the whole bag and then knocked the empty bag off the counter." },
+                    "created_at": { "type": "string", "example": "19/04/2026" },
+                    "updated_at": { "type": "string", "example": "19/04/2026" }
+                }
+            },
+            "product.input": {
+                "required": ["name", "detail"],
+                "type": "object",
+                "properties": {
+                    "name": { "type": "string", "example": "Catnip Deluxe" },
+                    "detail": { "type": "string", "example": "Silvia's weakness. Sam pretends he doesn't care, then steals it at 3 AM." }
+                }
+            },
+            "hotwheels": {
+                "type": "object",
+                "properties": {
+                    "id": { "type": "integer", "format": "int64", "example": 1 },
+                    "user": { "type": "integer", "description": "User ID of the owner", "example": 1 },
+                    "condition": { "type": "string", "description": "Physical condition of the car", "example": "Mint" },
+                    "in_packing": { "type": "boolean", "description": "Whether the car is still in its original packaging", "example": true },
+                    "toy_num": { "type": "string", "description": "Hot Wheels toy number", "example": "HW24-001" },
+                    "col_num": { "type": "string", "description": "Collection number", "example": "001/250" },
+                    "model": { "type": "string", "description": "Car model name", "example": "Paw-rsche 911 GT3" },
+                    "series": { "type": "string", "description": "Hot Wheels series name", "example": "Sam's Garage" },
+                    "series_num": { "type": "string", "description": "Position within the series", "example": "1/10" },
+                    "year": { "type": "integer", "description": "Release year", "example": 2024 },
+                    "photo_url": { "type": "string", "format": "uri", "description": "URL to the car's photo", "example": "https://example.com/hw/paw-rsche-911.jpg" },
+                    "detail": { "type": "string", "nullable": true, "example": "Sam sat on the box once but it survived. Purr-fect condition." },
+                    "created_at": { "type": "string", "example": "19/04/2026" },
+                    "updated_at": { "type": "string", "example": "19/04/2026" }
+                }
+            },
+            "hotwheels.input": {
+                "required": ["user", "condition", "in_packing", "toy_num", "col_num", "model", "series", "series_num", "year", "photo_url"],
+                "type": "object",
+                "properties": {
+                    "user": { "type": "integer", "description": "User ID of the owner", "example": 1 },
+                    "condition": { "type": "string", "description": "Physical condition: Mint, Good, Fair, Poor", "example": "Mint" },
+                    "in_packing": { "type": "boolean", "description": "Is the car still in original packaging?", "example": true },
+                    "toy_num": { "type": "string", "example": "HW24-001" },
+                    "col_num": { "type": "string", "example": "001/250" },
+                    "model": { "type": "string", "example": "Paw-rsche 911 GT3" },
+                    "series": { "type": "string", "example": "Sam's Garage" },
+                    "series_num": { "type": "string", "example": "1/10" },
+                    "year": { "type": "integer", "example": 2024 },
+                    "photo_url": { "type": "string", "format": "uri", "example": "https://example.com/hw/paw-rsche-911.jpg" },
+                    "detail": { "type": "string", "nullable": true, "example": "Sam sat on the box once but it survived." }
+                }
+            },
+            "hotwheels.update": {
+                "required": ["name", "detail"],
+                "type": "object",
+                "properties": {
+                    "name": { "type": "string", "example": "Meow-stang GT500" },
+                    "detail": { "type": "string", "example": "Updated after Silvia's quality inspection." }
+                }
+            },
+            "ip.lookup": {
+                "type": "object",
+                "description": "Complete IP intelligence result. Sam sniffed it; Silvia documented it.",
+                "properties": {
+                    "ip": {
+                        "type": "string",
+                        "description": "The queried IP address",
+                        "example": "118.25.6.39"
+                    },
+                    "location": {
+                        "nullable": true,
+                        "description": "Geolocation data from ip2location. Null if the IP is not in the database.",
+                        "type": "object",
+                        "properties": {
+                            "country_code": { "type": "string", "example": "CN" },
+                            "country_name": { "type": "string", "example": "China" },
+                            "region_name": { "type": "string", "nullable": true, "example": "Guangdong" },
+                            "city_name": { "type": "string", "nullable": true, "example": "Shenzhen" },
+                            "latitude": { "type": "number", "format": "float", "nullable": true, "example": 22.5431 },
+                            "longitude": { "type": "number", "format": "float", "nullable": true, "example": 114.0579 },
+                            "zip_code": { "type": "string", "nullable": true, "example": "518000" },
+                            "time_zone": { "type": "string", "nullable": true, "example": "+08:00" }
+                        }
+                    },
+                    "country": {
+                        "nullable": true,
+                        "description": "Country reference data. Null if not in the reference table.",
+                        "type": "object",
+                        "properties": {
+                            "alpha3_code": { "type": "string", "example": "CHN" },
+                            "numeric_code": { "type": "string", "example": "156" },
+                            "capital": { "type": "string", "nullable": true, "example": "Beijing" },
+                            "currency_code": { "type": "string", "nullable": true, "example": "CNY" },
+                            "currency_name": { "type": "string", "nullable": true, "example": "Yuan Renminbi" },
+                            "currency_symbol": { "type": "string", "nullable": true, "example": "¥" },
+                            "cctld": { "type": "string", "nullable": true, "example": ".cn" },
+                            "idd_code": { "type": "string", "nullable": true, "example": "86" },
+                            "population": { "type": "integer", "nullable": true, "example": 1411750000 },
+                            "total_area": { "type": "integer", "nullable": true, "example": 9596960 }
+                        }
+                    },
+                    "continent": {
+                        "nullable": true,
+                        "type": "object",
+                        "properties": {
+                            "code": { "type": "string", "example": "AS" },
+                            "name": { "type": "string", "example": "Asia" }
+                        }
+                    },
+                    "timezone": {
+                        "nullable": true,
+                        "type": "object",
+                        "properties": {
+                            "olson": { "type": "string", "example": "Asia/Shanghai" },
+                            "abbreviation": { "type": "string", "nullable": true, "example": "CST" },
+                            "dst_start": { "type": "string", "nullable": true, "example": null },
+                            "dst_end": { "type": "string", "nullable": true, "example": null }
+                        }
+                    },
+                    "metro": {
+                        "nullable": true,
+                        "description": "Metro area info (US only). Null outside the US — Sam is based in the Netherlands.",
+                        "type": "object",
+                        "properties": {
+                            "code": { "type": "string", "example": "501" },
+                            "name": { "type": "string", "example": "New York" }
+                        }
+                    },
+                    "asn": {
+                        "nullable": true,
+                        "type": "object",
+                        "properties": {
+                            "asn": { "type": "string", "example": "AS45090" },
+                            "organization": { "type": "string", "example": "Tencent Cloud Computing (Beijing) Co. Ltd" },
+                            "network": { "type": "string", "example": "118.25.0.0/16" }
+                        }
+                    },
+                    "proxy": {
+                        "nullable": true,
+                        "description": "Proxy/VPN detection from ip2location. Null if the IP has no proxy classification.",
+                        "type": "object",
+                        "properties": {
+                            "is_proxy": { "type": "boolean", "example": true },
+                            "is_vpn": { "type": "boolean", "example": false },
+                            "proxy_type": { "type": "string", "description": "VPN, TOR, PUB, WEB, DCH, SES, RES, CPN", "example": "DCH" },
+                            "country_code": { "type": "string", "nullable": true, "example": "CN" },
+                            "country_name": { "type": "string", "nullable": true, "example": "China" },
+                            "region_name": { "type": "string", "nullable": true, "example": "Guangdong" },
+                            "city_name": { "type": "string", "nullable": true, "example": "Shenzhen" },
+                            "isp": { "type": "string", "nullable": true, "example": "Tencent Cloud Computing" },
+                            "domain": { "type": "string", "nullable": true, "example": "tencent.com" },
+                            "usage_type": { "type": "string", "nullable": true, "example": "Data Center/Web Hosting/Transit" },
+                            "asn": { "type": "string", "nullable": true, "example": "AS45090" },
+                            "as_name": { "type": "string", "nullable": true, "example": "Tencent Cloud" },
+                            "last_seen": { "type": "integer", "nullable": true, "example": 1 },
+                            "threat": { "type": "string", "nullable": true, "example": "SPAM" },
+                            "provider": { "type": "string", "nullable": true, "example": null },
+                            "fraud_score": { "type": "integer", "nullable": true, "example": 75 }
+                        }
+                    },
+                    "threat": {
+                        "type": "object",
+                        "description": "Computed threat assessment. Score ≥ 50 or a known threat category means `is_threat: true`. Sam uses his nose; we use math.",
+                        "properties": {
+                            "score": { "type": "integer", "description": "Fraud score 0–100 from ip2location", "example": 75 },
+                            "is_proxy": { "type": "boolean", "example": true },
+                            "is_vpn": { "type": "boolean", "example": false },
+                            "is_threat": { "type": "boolean", "example": true },
+                            "reasons": {
+                                "type": "array",
+                                "items": { "type": "string" },
+                                "example": ["Hosting / data center IP", "Threat category: SPAM"]
+                            }
+                        }
+                    },
+                    "abuseipdb": {
+                        "nullable": true,
+                        "description": "AbuseIPDB threat data. Null if no API keys are configured or the lookup is unavailable. Results are cached for 14 days — Silvia keeps meticulous records.",
+                        "type": "object",
+                        "properties": {
+                            "abuse_confidence_score": { "type": "integer", "description": "0–100 confidence that this IP is abusive. Sam trusts anything above 50.", "example": 100 },
+                            "is_public": { "type": "boolean", "example": true },
+                            "ip_version": { "type": "integer", "description": "4 or 6", "example": 4 },
+                            "is_whitelisted": { "type": "boolean", "example": false },
+                            "country_code": { "type": "string", "nullable": true, "example": "CN" },
+                            "country_name": { "type": "string", "nullable": true, "example": "China" },
+                            "usage_type": { "type": "string", "nullable": true, "example": "Data Center/Web Hosting/Transit" },
+                            "isp": { "type": "string", "nullable": true, "example": "Tencent Cloud Computing (Beijing) Co. Ltd" },
+                            "domain": { "type": "string", "nullable": true, "example": "tencent.com" },
+                            "hostnames": { "type": "array", "items": { "type": "string" }, "example": [] },
+                            "is_tor": { "type": "boolean", "example": false },
+                            "total_reports": { "type": "integer", "description": "Total reports filed against this IP in the last 90 days", "example": 42 },
+                            "num_distinct_users": { "type": "integer", "description": "Number of unique reporters", "example": 9 },
+                            "last_reported_at": { "type": "string", "format": "date-time", "nullable": true, "example": "2024-01-15T10:00:00+00:00" },
+                            "checked_at": { "type": "string", "format": "date-time", "description": "When we last fetched fresh data from AbuseIPDB", "example": "2026-04-19T14:00:00+00:00" },
+                            "reports": {
+                                "type": "array",
+                                "description": "Up to 50 most recent reports. History is accumulated across checks — Silvia never forgets.",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "reported_at": { "type": "string", "format": "date-time", "example": "2024-01-15T10:00:00+00:00" },
+                                        "categories": {
+                                            "type": "array",
+                                            "description": "AbuseIPDB category IDs (e.g. 18=Brute-Force, 22=SSH)",
+                                            "items": { "type": "integer" },
+                                            "example": [18, 22]
+                                        },
+                                        "comment": { "type": "string", "nullable": true, "example": "Sam detected suspicious SSH traffic at 3 AM." },
+                                        "reporter_country_code": { "type": "string", "nullable": true, "example": "NL" },
+                                        "reporter_country_name": { "type": "string", "nullable": true, "example": "Netherlands" }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "securitySchemes": {
+            "BearerToken": {
+                "type": "http",
+                "scheme": "bearer",
+                "description": "A token obtained from `/auth/login`. Valid for 24 hours — about as long as Sam stays mad after you close the bathroom door. Place it in the `Authorization: Bearer <token>` header."
+            }
+        },
+        "requestBodies": {
+            "account.register": {
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": { "$ref": "#/components/schemas/account.register" }
+                    }
+                }
+            },
+            "account.verify": {
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": { "$ref": "#/components/schemas/account.verify" }
+                    }
+                }
+            },
+            "account.login": {
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": { "$ref": "#/components/schemas/account.login" }
+                    }
+                }
+            },
+            "product.store": {
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": { "$ref": "#/components/schemas/product.input" }
+                    }
+                }
+            },
+            "hotwheels.store": {
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": { "$ref": "#/components/schemas/hotwheels.input" }
+                    }
+                }
+            },
+            "hotwheels.update": {
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": { "$ref": "#/components/schemas/hotwheels.update" }
+                    }
+                }
+            }
+        },
         "responses": {
-          "200": {
-            "description": "successful operation",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "default": true
-                    },
-                    "code": {
-                      "type": "integer",
-                      "default": 200,
-                      "format": "int32"
-                    },
-                    "data": {
-                      "type": "object",
-                      "default": {
-                        "token": "1|aqWx2RpjFTtYsaOVi3M8df6p54VLKW23W6f48a0",
-                        "name": "Silvia"
-                      }
-                    },
-                    "message": {
-                      "type": "string",
-                      "default": "User register successfully."
+            "default401": {
+                "description": "Unauthenticated — no valid Bearer token provided. Sam wants to see your credentials.",
+                "content": {
+                    "application/json": {
+                        "schema": { "$ref": "#/components/schemas/response.error" },
+                        "example": {
+                            "success": false,
+                            "code": 401,
+                            "data": "",
+                            "message": "Unauthenticated."
+                        }
                     }
-                  }
                 }
-              }
-            }
-          },
-          "409": {
-            "description": "Registration Error. email already in use!",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "default": false
-                    },
-                    "code": {
-                      "type": "integer",
-                      "default": 409,
-                      "format": "int32"
-                    },
-                    "data": {
-                      "type": "string",
-                      "default": "Account already exists, please choose a different one."
-                    },
-                    "message": {
-                      "type": "string",
-                      "default": "Registration Error."
+            },
+            "default404": {
+                "description": "Not found — Sam looked everywhere, including under the sofa.",
+                "content": {
+                    "application/json": {
+                        "schema": { "$ref": "#/components/schemas/response.error" },
+                        "example": {
+                            "success": false,
+                            "code": 404,
+                            "data": "",
+                            "message": "Command not found with current user credentials"
+                        }
                     }
-                  }
                 }
-              }
-            }
-          },
-          "406": {
-            "$ref": "#/components/responses/default406"
-          },
-          "505": {
-            "$ref": "#/components/responses/default505"
-          }
-        },
-        "requestBody": {
-          "$ref": "#/components/requestBodies/account.register"
-        },
-        "description": "Register your account here, you still need to verify this account when done.",
-        "tags": [
-          "account"
-        ]
-      }
-    },
-    "/auth/verify": {
-      "post": {
-        "summary": "/auth/verify",
-        "operationId": "post.account.verify",
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "default": true
-                    },
-                    "code": {
-                      "type": "integer",
-                      "default": 200,
-                      "format": "int32"
-                    },
-                    "data": {
-                      "type": "object",
-                      "default": "User verified successfully."
-                    },
-                    "message": {
-                      "type": "string",
-                      "default": "Validation Success."
+            },
+            "default406": {
+                "description": "Validation error — check the `data` object for field-level details. Silvia says fill in all the required fields.",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "success": { "type": "boolean", "example": false },
+                                "code": { "type": "integer", "format": "int32", "example": 406 },
+                                "message": { "type": "string", "example": "Validation Error." },
+                                "data": {
+                                    "type": "object",
+                                    "example": {
+                                        "name": ["The name field is required."],
+                                        "email": ["The email field must be a valid email address."]
+                                    }
+                                }
+                            }
+                        }
                     }
-                  }
                 }
-              }
-            }
-          },
-          "409": {
-            "description": "Validation Error, verify process only",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "default": false
-                    },
-                    "code": {
-                      "type": "integer",
-                      "default": 409,
-                      "format": "int32"
-                    },
-                    "data": {
-                      "type": "string",
-                      "default": "Something bad broke, please contact: api@iriks-it.nl"
-                    },
-                    "message": {
-                      "type": "string",
-                      "default": "Validation Error."
+            },
+            "default505": {
+                "description": "Request was not sent over HTTPS. Sam refuses to transmit plaintext — he has standards.",
+                "content": {
+                    "application/json": {
+                        "schema": { "$ref": "#/components/schemas/response.error" },
+                        "example": {
+                            "success": false,
+                            "code": 505,
+                            "data": "",
+                            "message": "Request was not send over HTTPS"
+                        }
                     }
-                  }
                 }
-              }
             }
-          },
-          "406": {
-            "$ref": "#/components/responses/default406"
-          },
-          "505": {
-            "$ref": "#/components/responses/default505"
-          }
-        },
-        "requestBody": {
-          "$ref": "#/components/requestBodies/account.verify"
-        },
-        "description": "You found the verification code in your mail, now you can verify your account and start using it!",
-        "tags": [
-          "account"
-        ]
-      }
-    },
-    "/auth/login": {
-      "post": {
-        "summary": "/auth/login",
-        "operationId": "post.account.login",
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "default": true
-                    },
-                    "code": {
-                      "type": "integer",
-                      "default": 200,
-                      "format": "int32"
-                    },
-                    "data": {
-                      "type": "object",
-                      "default": {
-                        "token": "3|qF30ZVY2xW1OXJieMLXhUXZowwgVGVbm6F3kSoT714e04dec",
-                        "expire": "2025-01-30 05:46:46",
-                        "name": "Silvia"
-                      }
-                    },
-                    "message": {
-                      "type": "string",
-                      "default": "Validation Success."
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Login Error, verify first!",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "default": false
-                    },
-                    "code": {
-                      "type": "integer",
-                      "default": 409,
-                      "format": "int32"
-                    },
-                    "data": {
-                      "type": "string",
-                      "default": "Account hasn't been verified yet, please verify this first!"
-                    },
-                    "message": {
-                      "type": "string",
-                      "default": "Unauthorised"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "406": {
-            "$ref": "#/components/responses/default406"
-          },
-          "505": {
-            "$ref": "#/components/responses/default505"
-          }
-        },
-        "requestBody": {
-          "$ref": "#/components/requestBodies/account.login"
-        },
-        "description": "You want a Bearer Token? this is the way to get it!",
-        "tags": [
-          "account"
-        ]
-      }
+        }
     }
-  },
-  "components": {
-    "schemas": {
-      "account.register": {
-        "required": [
-          "name",
-          "email",
-          "password",
-          "c_password"
-        ],
-        "properties": {
-          "name": {
-            "type": "string",
-            "example": "Silvia"
-          },
-          "email": {
-            "type": "string",
-            "example": "silvia@iriks-it.nl"
-          },
-          "password": {
-            "type": "string",
-            "example": "g!v3m3f00dn0w!"
-          },
-          "c_password": {
-            "type": "string",
-            "example": "g!v3m3f00dn0w!"
-          }
-        },
-        "xml": {
-          "name": "Account register"
-        }
-      },
-      "account.verify": {
-        "required": [
-          "email",
-          "code"
-        ],
-        "properties": {
-          "email": {
-            "type": "string",
-            "example": "silvia@iriks-it.nl"
-          },
-          "code": {
-            "type": "string",
-            "example": "1234-ABCD-5678-EDFG-1337"
-          }
-        },
-        "xml": {
-          "name": "Account verify"
-        }
-      },
-      "account.login": {
-        "required": [
-          "email",
-          "password"
-        ],
-        "properties": {
-          "email": {
-            "type": "string",
-            "example": "silvia@iriks-it.nl"
-          },
-          "password": {
-            "type": "string",
-            "example": "g!v3m3f00dn0w!"
-          }
-        },
-        "xml": {
-          "name": "Account login"
-        }
-      }
-    },
-    "securitySchemes": {
-      "Bearer Token": {
-        "type": "http",
-        "scheme": "bearer",
-        "description": "This needs to be placed in the header, with the Bearer prefix. please see the auth/login route for more info"
-      }
-    },
-    "requestBodies": {
-      "account.register": {
-        "content": {
-          "application/json": {
-            "schema": {
-              "$ref": "#/components/schemas/account.register"
-            }
-          }
-        }
-      },
-      "account.verify": {
-        "content": {
-          "application/json": {
-            "schema": {
-              "$ref": "#/components/schemas/account.verify"
-            }
-          }
-        }
-      },
-      "account.login": {
-        "content": {
-          "application/json": {
-            "schema": {
-              "$ref": "#/components/schemas/account.login"
-            }
-          }
-        }
-      }
-    },
-    "responses": {
-      "default401": {
-        "description": "Unauthorized, insufficient scope",
-        "content": {
-          "application/json": {
-            "schema": {
-              "type": "object",
-              "x-examples": {
-                "example-1": {
-                  "success": false,
-                  "error": true,
-                  "code": 401,
-                  "message": "Unauthorized, insufficient scope"
-                }
-              },
-              "properties": {
-                "success": {
-                  "type": "boolean",
-                  "default": false
-                },
-                "error": {
-                  "type": "boolean",
-                  "default": true
-                },
-                "code": {
-                  "type": "integer",
-                  "default": 401,
-                  "format": "int32"
-                },
-                "message": {
-                  "type": "string",
-                  "default": "Unauthorized, insufficient scope"
-                }
-              }
-            },
-            "examples": {
-              "example-1": {
-                "value": {
-                  "success": false,
-                  "error": true,
-                  "code": 401,
-                  "message": "Unauthorized, insufficient scope"
-                }
-              }
-            }
-          }
-        },
-        "headers": {
-          "X-RateLimit-Limit": {
-            "schema": {
-              "type": "integer",
-              "format": "int32",
-              "default": 25
-            },
-            "description": "Your total limit"
-          },
-          "X-RateLimit-Remaining": {
-            "schema": {
-              "type": "integer",
-              "format": "int32",
-              "default": 24
-            },
-            "description": "Your calls remaining"
-          },
-          "X-RateLimit-Reset-In": {
-            "schema": {
-              "type": "integer",
-              "format": "int32",
-              "default": 300
-            },
-            "description": "Your calls remaining will reset in x seconds"
-          }
-        }
-      },
-      "default404": {
-        "description": "Command not found with current user credentials",
-        "content": {
-          "application/json": {
-            "schema": {
-              "type": "object",
-              "x-examples": {
-                "example-1": {
-                  "success": false,
-                  "error": true,
-                  "code": 404,
-                  "message": "Command not found with current user information"
-                }
-              },
-              "properties": {
-                "success": {
-                  "type": "boolean",
-                  "default": false
-                },
-                "error": {
-                  "type": "boolean",
-                  "default": true
-                },
-                "code": {
-                  "type": "integer",
-                  "default": 404,
-                  "format": "int32"
-                },
-                "message": {
-                  "type": "string",
-                  "default": "Command not found with current user information"
-                }
-              }
-            },
-            "examples": {
-              "example-1": {
-                "value": {
-                  "success": false,
-                  "error": true,
-                  "code": 404,
-                  "message": "Command not found with current user credentials"
-                }
-              }
-            }
-          }
-        },
-        "headers": {
-          "X-RateLimit-Limit": {
-            "schema": {
-              "type": "integer",
-              "format": "int32",
-              "default": 25
-            },
-            "description": "Your total limit"
-          },
-          "X-RateLimit-Remaining": {
-            "schema": {
-              "type": "integer",
-              "format": "int32",
-              "default": 24
-            },
-            "description": "Your calls remaining"
-          },
-          "X-RateLimit-Reset-In": {
-            "schema": {
-              "type": "integer",
-              "format": "int32",
-              "default": 300
-            },
-            "description": "Your calls remaining will reset in x seconds"
-          }
-        }
-      },
-      "default406": {
-        "description": "Validation Error, consult data object!",
-        "content": {
-          "application/json": {
-            "schema": {
-              "type": "object",
-              "properties": {
-                "success": {
-                  "type": "boolean",
-                  "default": false
-                },
-                "code": {
-                  "type": "integer",
-                  "default": 406,
-                  "format": "int32"
-                },
-                "message": {
-                  "type": "string",
-                  "default": "Validation Error."
-                },
-                "data": {
-                  "type": "object",
-                  "default": {
-                    "field1": "The field1 field is required.",
-                    "field2": "The field2 field must match field1."
-                  }
-                }
-              }
-            }
-          }
-        },
-        "headers": {
-          "X-RateLimit-Limit": {
-            "schema": {
-              "type": "integer",
-              "format": "int32",
-              "default": 25
-            },
-            "description": "Your total limit"
-          },
-          "X-RateLimit-Remaining": {
-            "schema": {
-              "type": "integer",
-              "format": "int32",
-              "default": 24
-            },
-            "description": "Your calls remaining"
-          },
-          "X-RateLimit-Reset-In": {
-            "schema": {
-              "type": "integer",
-              "format": "int32",
-              "default": 300
-            },
-            "description": "Your calls remaining will reset in x seconds"
-          }
-        }
-      },
-      "default505": {
-        "description": "Request was not send over HTTPS",
-        "content": {
-          "application/json": {
-            "schema": {
-              "type": "object",
-              "x-examples": {
-                "example-1": {
-                  "success": false,
-                  "error": true,
-                  "code": 505,
-                  "message": "Request was not send over HTTPS"
-                }
-              },
-              "properties": {
-                "success": {
-                  "type": "boolean",
-                  "default": false
-                },
-                "error": {
-                  "type": "boolean",
-                  "default": true
-                },
-                "code": {
-                  "type": "integer",
-                  "default": 505,
-                  "format": "int32"
-                },
-                "message": {
-                  "type": "string",
-                  "default": "Request was not send over HTTPS"
-                }
-              }
-            },
-            "examples": {
-              "example-1": {
-                "value": {
-                  "success": false,
-                  "error": true,
-                  "code": 505,
-                  "message": "Request was not send over HTTPS"
-                }
-              }
-            }
-          }
-        },
-        "headers": {
-          "X-RateLimit-Limit": {
-            "schema": {
-              "type": "integer",
-              "format": "int32",
-              "default": 25
-            },
-            "description": "Your total limit"
-          },
-          "X-RateLimit-Remaining": {
-            "schema": {
-              "type": "integer",
-              "format": "int32",
-              "default": 24
-            },
-            "description": "Your calls remaining"
-          },
-          "X-RateLimit-Reset-In": {
-            "schema": {
-              "type": "integer",
-              "format": "int32",
-              "default": 300
-            },
-            "description": "Your calls remaining will reset in x seconds"
-          }
-        }
-      }
-    }
-  }
 }
