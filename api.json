@@ -14,7 +14,7 @@
             "backgroundColor": "#FFFFFF",
             "altText": "Iriks-IT Logo"
         },
-        "version": "0.12.0"
+        "version": "0.15.0"
     },
     "externalDocs": {
         "description": "Find out more about Iriks-IT",
@@ -222,6 +222,11 @@
                 "responses": {
                     "200": {
                         "description": "Products retrieved successfully.",
+                        "headers": {
+                            "X-RateLimit-Limit": { "$ref": "#/components/headers/X-RateLimit-Limit" },
+                            "X-RateLimit-Remaining": { "$ref": "#/components/headers/X-RateLimit-Remaining" },
+                            "X-RateLimit-Reset": { "$ref": "#/components/headers/X-RateLimit-Reset" }
+                        },
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -262,6 +267,9 @@
                     },
                     "401": {
                         "$ref": "#/components/responses/default401"
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/default429"
                     }
                 }
             },
@@ -276,6 +284,11 @@
                 "responses": {
                     "200": {
                         "description": "Product created successfully.",
+                        "headers": {
+                            "X-RateLimit-Limit": { "$ref": "#/components/headers/X-RateLimit-Limit" },
+                            "X-RateLimit-Remaining": { "$ref": "#/components/headers/X-RateLimit-Remaining" },
+                            "X-RateLimit-Reset": { "$ref": "#/components/headers/X-RateLimit-Reset" }
+                        },
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -307,6 +320,9 @@
                     },
                     "406": {
                         "$ref": "#/components/responses/default406"
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/default429"
                     }
                 }
             }
@@ -323,6 +339,11 @@
                 "responses": {
                     "200": {
                         "description": "Product retrieved successfully.",
+                        "headers": {
+                            "X-RateLimit-Limit": { "$ref": "#/components/headers/X-RateLimit-Limit" },
+                            "X-RateLimit-Remaining": { "$ref": "#/components/headers/X-RateLimit-Remaining" },
+                            "X-RateLimit-Reset": { "$ref": "#/components/headers/X-RateLimit-Reset" }
+                        },
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -342,6 +363,9 @@
                     },
                     "404": {
                         "$ref": "#/components/responses/default404"
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/default429"
                     }
                 }
             },
@@ -359,6 +383,11 @@
                 "responses": {
                     "200": {
                         "description": "Product updated successfully.",
+                        "headers": {
+                            "X-RateLimit-Limit": { "$ref": "#/components/headers/X-RateLimit-Limit" },
+                            "X-RateLimit-Remaining": { "$ref": "#/components/headers/X-RateLimit-Remaining" },
+                            "X-RateLimit-Reset": { "$ref": "#/components/headers/X-RateLimit-Reset" }
+                        },
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -381,6 +410,9 @@
                     },
                     "406": {
                         "$ref": "#/components/responses/default406"
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/default429"
                     }
                 }
             },
@@ -395,6 +427,11 @@
                 "responses": {
                     "200": {
                         "description": "Product deleted successfully.",
+                        "headers": {
+                            "X-RateLimit-Limit": { "$ref": "#/components/headers/X-RateLimit-Limit" },
+                            "X-RateLimit-Remaining": { "$ref": "#/components/headers/X-RateLimit-Remaining" },
+                            "X-RateLimit-Reset": { "$ref": "#/components/headers/X-RateLimit-Reset" }
+                        },
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -414,6 +451,9 @@
                     },
                     "404": {
                         "$ref": "#/components/responses/default404"
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/default429"
                     }
                 }
             }
@@ -427,6 +467,11 @@
                 "responses": {
                     "200": {
                         "description": "Hot Wheels retrieved successfully.",
+                        "headers": {
+                            "X-RateLimit-Limit": { "$ref": "#/components/headers/X-RateLimit-Limit" },
+                            "X-RateLimit-Remaining": { "$ref": "#/components/headers/X-RateLimit-Remaining" },
+                            "X-RateLimit-Reset": { "$ref": "#/components/headers/X-RateLimit-Reset" }
+                        },
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -485,6 +530,9 @@
                     },
                     "401": {
                         "$ref": "#/components/responses/default401"
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/default429"
                     }
                 }
             },
@@ -499,6 +547,11 @@
                 "responses": {
                     "200": {
                         "description": "Car added to the collection successfully.",
+                        "headers": {
+                            "X-RateLimit-Limit": { "$ref": "#/components/headers/X-RateLimit-Limit" },
+                            "X-RateLimit-Remaining": { "$ref": "#/components/headers/X-RateLimit-Remaining" },
+                            "X-RateLimit-Reset": { "$ref": "#/components/headers/X-RateLimit-Reset" }
+                        },
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -518,6 +571,9 @@
                     },
                     "406": {
                         "$ref": "#/components/responses/default406"
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/default429"
                     }
                 }
             }
@@ -534,6 +590,11 @@
                 "responses": {
                     "200": {
                         "description": "Car retrieved successfully.",
+                        "headers": {
+                            "X-RateLimit-Limit": { "$ref": "#/components/headers/X-RateLimit-Limit" },
+                            "X-RateLimit-Remaining": { "$ref": "#/components/headers/X-RateLimit-Remaining" },
+                            "X-RateLimit-Reset": { "$ref": "#/components/headers/X-RateLimit-Reset" }
+                        },
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -553,6 +614,9 @@
                     },
                     "404": {
                         "$ref": "#/components/responses/default404"
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/default429"
                     }
                 }
             },
@@ -570,6 +634,11 @@
                 "responses": {
                     "200": {
                         "description": "Car updated successfully.",
+                        "headers": {
+                            "X-RateLimit-Limit": { "$ref": "#/components/headers/X-RateLimit-Limit" },
+                            "X-RateLimit-Remaining": { "$ref": "#/components/headers/X-RateLimit-Remaining" },
+                            "X-RateLimit-Reset": { "$ref": "#/components/headers/X-RateLimit-Reset" }
+                        },
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -592,6 +661,9 @@
                     },
                     "406": {
                         "$ref": "#/components/responses/default406"
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/default429"
                     }
                 }
             },
@@ -606,6 +678,11 @@
                 "responses": {
                     "200": {
                         "description": "Car deleted from the collection.",
+                        "headers": {
+                            "X-RateLimit-Limit": { "$ref": "#/components/headers/X-RateLimit-Limit" },
+                            "X-RateLimit-Remaining": { "$ref": "#/components/headers/X-RateLimit-Remaining" },
+                            "X-RateLimit-Reset": { "$ref": "#/components/headers/X-RateLimit-Reset" }
+                        },
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -625,6 +702,9 @@
                     },
                     "404": {
                         "$ref": "#/components/responses/default404"
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/default429"
                     }
                 }
             }
@@ -650,6 +730,11 @@
                 "responses": {
                     "200": {
                         "description": "IP data retrieved successfully. Sam sniffed it and found no suspicious treats.",
+                        "headers": {
+                            "X-RateLimit-Limit": { "$ref": "#/components/headers/X-RateLimit-Limit" },
+                            "X-RateLimit-Remaining": { "$ref": "#/components/headers/X-RateLimit-Remaining" },
+                            "X-RateLimit-Reset": { "$ref": "#/components/headers/X-RateLimit-Reset" }
+                        },
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -787,6 +872,9 @@
                                 }
                             }
                         }
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/default429"
                     },
                     "422": {
                         "description": "The provided value is not a valid IP address. Even Sam knows `meow` is not an IP.",
@@ -1117,6 +1205,20 @@
                 }
             }
         },
+        "headers": {
+            "X-RateLimit-Limit": {
+                "description": "The maximum number of requests allowed in the current window. Silvia gets 1000 head-scritches per day — you get 1000 requests.",
+                "schema": { "type": "integer", "example": 1000 }
+            },
+            "X-RateLimit-Remaining": {
+                "description": "The number of requests remaining before the window resets. Sam is watching this number very carefully.",
+                "schema": { "type": "integer", "example": 999 }
+            },
+            "X-RateLimit-Reset": {
+                "description": "Unix timestamp (seconds) when the rate limit window resets. Silvia sets her nap timer to this.",
+                "schema": { "type": "integer", "format": "int64", "example": 1745190000 }
+            }
+        },
         "securitySchemes": {
             "BearerToken": {
                 "type": "http",
@@ -1221,6 +1323,28 @@
                                     }
                                 }
                             }
+                        }
+                    }
+                }
+            },
+            "default429": {
+                "description": "Rate limit exceeded — even Silvia naps less than this. Check `Retry-After` and try again when the window resets.",
+                "headers": {
+                    "X-RateLimit-Limit": { "$ref": "#/components/headers/X-RateLimit-Limit" },
+                    "X-RateLimit-Remaining": { "$ref": "#/components/headers/X-RateLimit-Remaining" },
+                    "X-RateLimit-Reset": { "$ref": "#/components/headers/X-RateLimit-Reset" },
+                    "Retry-After": {
+                        "description": "Seconds until the rate limit window resets. Sam counted them himself.",
+                        "schema": { "type": "integer", "example": 3600 }
+                    }
+                },
+                "content": {
+                    "application/json": {
+                        "schema": { "$ref": "#/components/schemas/response.error" },
+                        "example": {
+                            "success": false,
+                            "code": 429,
+                            "message": "Too Many Requests — even Silvia naps less than this."
                         }
                     }
                 }
