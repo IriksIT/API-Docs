@@ -2,7 +2,7 @@
     "openapi": "3.0.3",
     "info": {
         "title": "Iriks-IT API",
-        "description": "The official API for [Iriks-IT](https://iriks-it.nl). Powering tools, collections, and mischief since Sam knocked the first server off the desk.\n\n> *\"Why did Sam sit on the API server? To keep an eye on the mouse.\"*\n\nAll authenticated endpoints require a Bearer token obtained via `/auth/login`. Tokens expire after **24 hours** — roughly the time it takes Silvia to forgive you for waking her up.",
+        "description": "The official API for [Iriks-IT](https://iriks-it.nl). Powering tools, collections, and mischief since Sam knocked the first server off the desk.\n\n> *\"Why did Sam write the API docs? Because Silvia said if he didn't, she'd replace him with a 404 page.\"*\n\nAll authenticated endpoints require a Bearer token obtained via `/auth/login`. Tokens expire after **24 hours** — roughly the time it takes Silvia to forgive you for waking her up.",
         "termsOfService": "https://iriks-it.nl/api-terms/",
         "contact": {
             "email": "devop@iriks-it.nl",
@@ -14,7 +14,7 @@
             "backgroundColor": "#FFFFFF",
             "altText": "Iriks-IT Logo"
         },
-        "version": "0.15.0"
+        "version": "1.1.3"
     },
     "externalDocs": {
         "description": "Find out more about Iriks-IT",
@@ -789,24 +789,6 @@
                                             "organization": "Tencent Cloud Computing (Beijing) Co. Ltd",
                                             "network": "118.25.0.0/16"
                                         },
-                                        "proxy": {
-                                            "is_proxy": true,
-                                            "is_vpn": false,
-                                            "proxy_type": "DCH",
-                                            "country_code": "CN",
-                                            "country_name": "China",
-                                            "region_name": "Guangdong",
-                                            "city_name": "Shenzhen",
-                                            "isp": "Tencent Cloud Computing",
-                                            "domain": "tencent.com",
-                                            "usage_type": "Data Center/Web Hosting/Transit",
-                                            "asn": "AS45090",
-                                            "as_name": "Tencent Cloud",
-                                            "last_seen": 1,
-                                            "threat": "SPAM",
-                                            "provider": null,
-                                            "fraud_score": 75
-                                        },
                                         "threat": {
                                             "score": 75,
                                             "is_proxy": true,
@@ -814,23 +796,10 @@
                                             "is_threat": true,
                                             "reasons": [
                                                 "Hosting / data center IP",
-                                                "Threat category: SPAM"
-                                            ]
-                                        },
-                                        "abuseipdb": {
-                                            "abuse_confidence_score": 100,
-                                            "is_public": true,
-                                            "ip_version": 4,
-                                            "is_whitelisted": false,
-                                            "country_code": "CN",
-                                            "country_name": "China",
-                                            "usage_type": "Data Center/Web Hosting/Transit",
-                                            "isp": "Tencent Cloud Computing (Beijing) Co. Ltd",
-                                            "domain": "tencent.com",
-                                            "hostnames": [],
-                                            "is_tor": false,
+                                                "Threat category: SPAM",
+                                                "High-risk country: China"
+                                            ],
                                             "total_reports": 42,
-                                            "num_distinct_users": 9,
                                             "last_reported_at": "2024-01-15T10:00:00+00:00",
                                             "checked_at": "2026-04-19T14:00:00+00:00",
                                             "reports": [
@@ -1123,78 +1092,59 @@
                             "network": { "type": "string", "example": "118.25.0.0/16" }
                         }
                     },
-                    "proxy": {
-                        "nullable": true,
-                        "description": "Proxy/VPN detection from ip2location. Null if the IP has no proxy classification.",
-                        "type": "object",
-                        "properties": {
-                            "is_proxy": { "type": "boolean", "example": true },
-                            "is_vpn": { "type": "boolean", "example": false },
-                            "proxy_type": { "type": "string", "description": "VPN, TOR, PUB, WEB, DCH, SES, RES, CPN", "example": "DCH" },
-                            "country_code": { "type": "string", "nullable": true, "example": "CN" },
-                            "country_name": { "type": "string", "nullable": true, "example": "China" },
-                            "region_name": { "type": "string", "nullable": true, "example": "Guangdong" },
-                            "city_name": { "type": "string", "nullable": true, "example": "Shenzhen" },
-                            "isp": { "type": "string", "nullable": true, "example": "Tencent Cloud Computing" },
-                            "domain": { "type": "string", "nullable": true, "example": "tencent.com" },
-                            "usage_type": { "type": "string", "nullable": true, "example": "Data Center/Web Hosting/Transit" },
-                            "asn": { "type": "string", "nullable": true, "example": "AS45090" },
-                            "as_name": { "type": "string", "nullable": true, "example": "Tencent Cloud" },
-                            "last_seen": { "type": "integer", "nullable": true, "example": 1 },
-                            "threat": { "type": "string", "nullable": true, "example": "SPAM" },
-                            "provider": { "type": "string", "nullable": true, "example": null },
-                            "fraud_score": { "type": "integer", "nullable": true, "example": 75 }
-                        }
-                    },
                     "threat": {
                         "type": "object",
-                        "description": "Computed threat assessment. Score ≥ 50 or a known threat category means `is_threat: true`. Sam uses his nose; we use math.",
+                        "description": "Combined threat assessment from AbuseIPDB, ip2location proxy data, and custom score rules. Score ≥ 50 always sets `is_threat: true`. Silvia keeps score; Sam enforces it.",
                         "properties": {
-                            "score": { "type": "integer", "description": "Fraud score 0–100 from ip2location", "example": 75 },
-                            "is_proxy": { "type": "boolean", "example": true },
-                            "is_vpn": { "type": "boolean", "example": false },
-                            "is_threat": { "type": "boolean", "example": true },
+                            "score": {
+                                "type": "integer",
+                                "description": "Threat score 0–100. Primary: AbuseIPDB `abuse_confidence_score` (per-IP, full weight). Secondary: ip2location `fraud_score` at 25% (block-level signal). Plus any custom country/rule modifiers. When AbuseIPDB data is unavailable, ip2location `fraud_score` is used as the sole base. Always clamped to 100.",
+                                "example": 75
+                            },
+                            "is_proxy": { "type": "boolean", "description": "True if ip2location classifies this IP as a proxy or hosting range.", "example": true },
+                            "is_vpn": { "type": "boolean", "description": "True if proxy type is VPN, TOR, or CPN.", "example": false },
+                            "is_threat": { "type": "boolean", "description": "True when score ≥ 50 or ip2location reports an active threat category. Sam hisses at anything above 50.", "example": true },
                             "reasons": {
                                 "type": "array",
+                                "description": "Human-readable labels explaining the score. Includes proxy type, ip2location threat category, and any triggered score rules.",
                                 "items": { "type": "string" },
-                                "example": ["Hosting / data center IP", "Threat category: SPAM"]
-                            }
-                        }
-                    },
-                    "abuseipdb": {
-                        "nullable": true,
-                        "description": "AbuseIPDB threat data. Null if no API keys are configured or the lookup is unavailable. Results are cached for 14 days — Silvia keeps meticulous records.",
-                        "type": "object",
-                        "properties": {
-                            "abuse_confidence_score": { "type": "integer", "description": "0–100 confidence that this IP is abusive. Sam trusts anything above 50.", "example": 100 },
-                            "is_public": { "type": "boolean", "example": true },
-                            "ip_version": { "type": "integer", "description": "4 or 6", "example": 4 },
-                            "is_whitelisted": { "type": "boolean", "example": false },
-                            "country_code": { "type": "string", "nullable": true, "example": "CN" },
-                            "country_name": { "type": "string", "nullable": true, "example": "China" },
-                            "usage_type": { "type": "string", "nullable": true, "example": "Data Center/Web Hosting/Transit" },
-                            "isp": { "type": "string", "nullable": true, "example": "Tencent Cloud Computing (Beijing) Co. Ltd" },
-                            "domain": { "type": "string", "nullable": true, "example": "tencent.com" },
-                            "hostnames": { "type": "array", "items": { "type": "string" }, "example": [] },
-                            "is_tor": { "type": "boolean", "example": false },
-                            "total_reports": { "type": "integer", "description": "Total reports filed against this IP in the last 90 days", "example": 42 },
-                            "num_distinct_users": { "type": "integer", "description": "Number of unique reporters", "example": 9 },
-                            "last_reported_at": { "type": "string", "format": "date-time", "nullable": true, "example": "2024-01-15T10:00:00+00:00" },
-                            "checked_at": { "type": "string", "format": "date-time", "description": "When we last fetched fresh data from AbuseIPDB", "example": "2026-04-19T14:00:00+00:00" },
+                                "example": ["Hosting / data center IP", "Threat category: SPAM", "High-risk country: China"]
+                            },
+                            "total_reports": {
+                                "type": "integer",
+                                "nullable": true,
+                                "description": "Total AbuseIPDB abuse reports filed against this IP in the last 90 days. Null if AbuseIPDB data is unavailable.",
+                                "example": 42
+                            },
+                            "last_reported_at": {
+                                "type": "string",
+                                "format": "date-time",
+                                "nullable": true,
+                                "description": "ISO 8601 timestamp of the most recent AbuseIPDB report. Null if never reported or unavailable.",
+                                "example": "2024-01-15T10:00:00+00:00"
+                            },
+                            "checked_at": {
+                                "type": "string",
+                                "format": "date-time",
+                                "nullable": true,
+                                "description": "When we last fetched AbuseIPDB data for this IP. Results are cached for 14 days — Silvia updates her records on schedule.",
+                                "example": "2026-04-19T14:00:00+00:00"
+                            },
                             "reports": {
+                                "nullable": true,
                                 "type": "array",
-                                "description": "Up to 50 most recent reports. History is accumulated across checks — Silvia never forgets.",
+                                "description": "Up to 50 most recent AbuseIPDB reports for this IP. Null if AbuseIPDB data is unavailable. History is accumulated across checks — Silvia never forgets a grudge.",
                                 "items": {
                                     "type": "object",
                                     "properties": {
                                         "reported_at": { "type": "string", "format": "date-time", "example": "2024-01-15T10:00:00+00:00" },
                                         "categories": {
                                             "type": "array",
-                                            "description": "AbuseIPDB category IDs (e.g. 18=Brute-Force, 22=SSH)",
+                                            "description": "AbuseIPDB category IDs (e.g. 18=Brute-Force, 22=SSH). Sam memorised them all.",
                                             "items": { "type": "integer" },
                                             "example": [18, 22]
                                         },
-                                        "comment": { "type": "string", "nullable": true, "example": "Sam detected suspicious SSH traffic at 3 AM." },
+                                        "comment": { "type": "string", "nullable": true, "example": "Sam detected suspicious SSH traffic from this IP at 3 AM. He woke up the admin by sitting on the keyboard." },
                                         "reporter_country_code": { "type": "string", "nullable": true, "example": "NL" },
                                         "reporter_country_name": { "type": "string", "nullable": true, "example": "Netherlands" }
                                     }
