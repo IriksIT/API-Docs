@@ -47,6 +47,10 @@
         {
             "name": "tools",
             "description": "Utility endpoints for IP intelligence. Sam sniffs every packet — you get a nice JSON response instead."
+        },
+        {
+            "name": "webhooks",
+            "description": "Inbound webhook receivers. Silvia sits on the server and intercepts every status update — nothing gets past her."
         }
     ],
     "paths": {
@@ -855,6 +859,157 @@
                                     "code": 422,
                                     "data": "",
                                     "message": "The provided value is not a valid IP address."
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/webhooks/statuspage/{code}": {
+            "post": {
+                "tags": ["webhooks"],
+                "summary": "Receive an Atlassian Statuspage webhook",
+                "operationId": "post.webhooks.statuspage",
+                "description": "Receives inbound incident or component-update payloads from an Atlassian Statuspage subscription. The `{code}` path segment identifies the registered source — Silvia checks it against a list of known sources and meows loudly if it is not recognised.\n\nNew incident updates are stored and forwarded to configured notification channels (Discord, Telegram). Duplicate deliveries are safely ignored — Silvia never processes the same update twice.\n\nThis endpoint requires no authentication token; access is gated solely by the source `{code}`.",
+                "security": [],
+                "parameters": [
+                    {
+                        "name": "code",
+                        "in": "path",
+                        "required": true,
+                        "description": "The unique source code registered for this Statuspage subscription. Sam guards the list — unknown codes get a 404.",
+                        "schema": {
+                            "type": "string",
+                            "example": "vrchat"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "description": "Atlassian Statuspage webhook payload. Must contain either an `incident` or a `component_update` key.",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "meta": {
+                                        "type": "object",
+                                        "properties": {
+                                            "unsubscribe": { "type": "string", "format": "uri" },
+                                            "documentation": { "type": "string", "format": "uri" }
+                                        }
+                                    },
+                                    "page": {
+                                        "type": "object",
+                                        "properties": {
+                                            "id": { "type": "string", "example": "kctbh9vrtdwd" },
+                                            "status_indicator": { "type": "string", "example": "critical" },
+                                            "status_description": { "type": "string", "example": "Major System Outage" }
+                                        }
+                                    },
+                                    "incident": {
+                                        "type": "object",
+                                        "description": "Present for incident payloads.",
+                                        "properties": {
+                                            "id": { "type": "string", "example": "lbkhbwn21v5q" },
+                                            "name": { "type": "string", "example": "Sam knocked the auth server off the desk" },
+                                            "status": { "type": "string", "example": "investigating" },
+                                            "impact": { "type": "string", "example": "critical" },
+                                            "shortlink": { "type": "string", "format": "uri", "example": "https://stspg.io/abc123" },
+                                            "resolved_at": { "type": "string", "format": "date-time", "nullable": true },
+                                            "incident_updates": {
+                                                "type": "array",
+                                                "description": "Newest first. The last item is always the initial report.",
+                                                "items": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "id": { "type": "string" },
+                                                        "status": { "type": "string" },
+                                                        "body": { "type": "string" },
+                                                        "display_at": { "type": "string", "format": "date-time" }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "component_update": {
+                                        "type": "object",
+                                        "description": "Present for component-update payloads.",
+                                        "properties": {
+                                            "id": { "type": "string", "example": "k7730b5v92bv" },
+                                            "component_id": { "type": "string", "example": "rb5wq1dczvbm" },
+                                            "old_status": { "type": "string", "example": "major_outage" },
+                                            "new_status": { "type": "string", "example": "operational" }
+                                        }
+                                    },
+                                    "component": {
+                                        "type": "object",
+                                        "description": "Present alongside component_update.",
+                                        "properties": {
+                                            "id": { "type": "string" },
+                                            "name": { "type": "string", "example": "Authentication Service" },
+                                            "status": { "type": "string", "example": "operational" }
+                                        }
+                                    }
+                                }
+                            },
+                            "examples": {
+                                "incident": {
+                                    "summary": "Incident update — Silvia spotted an outage",
+                                    "value": {
+                                        "meta": { "unsubscribe": "https://status.vrchat.com/?unsubscribe=abc" },
+                                        "page": { "id": "kctbh9vrtdwd", "status_indicator": "critical", "status_description": "Major System Outage" },
+                                        "incident": {
+                                            "id": "lbkhbwn21v5q",
+                                            "name": "Sam knocked the auth server off the desk",
+                                            "status": "investigating",
+                                            "impact": "critical",
+                                            "shortlink": "https://stspg.io/abc123",
+                                            "resolved_at": null,
+                                            "incident_updates": [
+                                                { "id": "qbbsfhy5s9kk", "status": "investigating", "body": "We are investigating the issue — Sam is being gently removed from the server room.", "display_at": "2026-04-27T10:00:00Z" }
+                                            ]
+                                        }
+                                    }
+                                },
+                                "component": {
+                                    "summary": "Component update — Silvia approves",
+                                    "value": {
+                                        "meta": { "unsubscribe": "https://status.vrchat.com/?unsubscribe=abc" },
+                                        "page": { "id": "kctbh9vrtdwd", "status_indicator": "major", "status_description": "Partial System Outage" },
+                                        "component_update": { "id": "k7730b5v92bv", "component_id": "rb5wq1dczvbm", "old_status": "major_outage", "new_status": "operational" },
+                                        "component": { "id": "rb5wq1dczvbm", "name": "Authentication Service", "status": "operational" }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Webhook received and queued for processing. Sam will process it shortly.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/response.success" },
+                                "example": {
+                                    "success": true,
+                                    "code": 200,
+                                    "data": [],
+                                    "message": "Webhook received."
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Unknown source code. Silvia does not recognise this visitor.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/response.error" },
+                                "example": {
+                                    "success": false,
+                                    "code": 404,
+                                    "message": "Unknown webhook code."
                                 }
                             }
                         }
