@@ -170,14 +170,14 @@
                 "tags": ["account"],
                 "summary": "Log in and obtain a Bearer token",
                 "operationId": "post.account.login",
-                "description": "Exchange your credentials for a Bearer token. Tokens expire after 24 hours — about the same time Sam takes to forgive you for closing the bedroom door. You must have verified your account first.",
+                "description": "Exchange your credentials for an access token and a refresh token. The access token expires after 24 hours — about the same time Sam takes to forgive you for closing the bedroom door. The refresh token is valid for 30 days and can be exchanged at `/auth/refresh` for a fresh pair. You must have verified your account first.",
                 "security": [],
                 "requestBody": {
                     "$ref": "#/components/requestBodies/account.login"
                 },
                 "responses": {
                     "200": {
-                        "description": "Login successful. Use the returned token as `Authorization: Bearer <token>` on all protected endpoints.",
+                        "description": "Login successful. Use `token` as `Authorization: Bearer <token>` on all protected endpoints. Store `refresh_token` securely — Sam guards his with his life.",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -188,16 +188,18 @@
                                     "code": 200,
                                     "data": {
                                         "token": "3|qF30ZVY2xW1OXJieMLXhUXZowwgVGVbm6F3kSoT714e04dec",
-                                        "expire": "2025-01-30 05:46:46",
+                                        "expire": "2026-05-08 10:00:00",
+                                        "refresh_token": "4|rG41AWZ3yX2PYKjfNMYiVYApxxhWHWcn7G4lTpU825f15efd",
+                                        "refresh_expire": "2026-06-06 10:00:00",
                                         "name": "Silvia"
                                     },
-                                    "message": "Validation Success."
+                                    "message": "User login successfully."
                                 }
                             }
                         }
                     },
-                    "409": {
-                        "description": "Account not verified yet.",
+                    "403": {
+                        "description": "Account not verified yet — Silvia is still screening you.",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -205,7 +207,7 @@
                                 },
                                 "example": {
                                     "success": false,
-                                    "code": 409,
+                                    "code": 403,
                                     "data": "Account hasn't been verified yet, please verify this first!",
                                     "message": "Unauthorised"
                                 }
@@ -217,6 +219,70 @@
                     },
                     "505": {
                         "$ref": "#/components/responses/default505"
+                    }
+                }
+            }
+        },
+        "/auth/refresh": {
+            "post": {
+                "tags": ["account"],
+                "summary": "Refresh your access token",
+                "operationId": "post.account.refresh",
+                "description": "Exchange a valid refresh token for a fresh access token + refresh token pair. The old refresh token is immediately invalidated — single-use, like Sam's patience when his food bowl is empty.\n\nSend the refresh token (not the access token) in the `Authorization: Bearer` header. Using an access token here will be rejected with 403.",
+                "security": [
+                    { "BearerToken": [] }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "New token pair issued. The old refresh token is now dead — Silvia shredded it.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.login"
+                                },
+                                "example": {
+                                    "success": true,
+                                    "code": 200,
+                                    "data": {
+                                        "token": "5|sH52BXA4zY3QZLkgONZjWZBqyyiXIXdo8H5mUqV936g26fge",
+                                        "expire": "2026-05-09 10:00:00",
+                                        "refresh_token": "6|tI63CYB5aZ4RAMlhPOAkXACrzzjYJYep9I6nVrW047h37ghf",
+                                        "refresh_expire": "2026-06-07 10:00:00",
+                                        "name": "Silvia"
+                                    },
+                                    "message": "Token refreshed successfully."
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "The refresh token was not found — it may have already been used or expired. Sam says no.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/response.error" },
+                                "example": {
+                                    "success": false,
+                                    "code": 401,
+                                    "message": "Unauthorised"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "The token provided does not have the `token-refresh` ability. You likely sent an access token instead of a refresh token — Silvia can tell the difference.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/response.error" },
+                                "example": {
+                                    "success": false,
+                                    "code": 403,
+                                    "message": "Invalid token type."
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/default429"
                     }
                 }
             }
@@ -1457,12 +1523,14 @@
                     "data": {
                         "type": "object",
                         "properties": {
-                            "token": { "type": "string", "example": "3|qF30ZVY2xW1OXJieMLXhUXZowwgVGVbm6F3kSoT714e04dec" },
-                            "expire": { "type": "string", "format": "date-time", "example": "2026-04-20 05:46:46" },
+                            "token": { "type": "string", "description": "Short-lived access token. Valid for 24 hours. Use this for all API calls.", "example": "3|qF30ZVY2xW1OXJieMLXhUXZowwgVGVbm6F3kSoT714e04dec" },
+                            "expire": { "type": "string", "format": "date-time", "description": "UTC expiry of the access token.", "example": "2026-05-08 10:00:00" },
+                            "refresh_token": { "type": "string", "description": "Long-lived refresh token. Valid for 30 days. Single-use — exchange it at `/auth/refresh` for a new pair. Store securely; Sam treats his like a state secret.", "example": "4|rG41AWZ3yX2PYKjfNMYiVYApxxhWHWcn7G4lTpU825f15efd" },
+                            "refresh_expire": { "type": "string", "format": "date-time", "description": "UTC expiry of the refresh token.", "example": "2026-06-06 10:00:00" },
                             "name": { "type": "string", "example": "Silvia" }
                         }
                     },
-                    "message": { "type": "string", "example": "Validation Success." }
+                    "message": { "type": "string", "example": "User login successfully." }
                 }
             },
             "account.register": {
