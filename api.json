@@ -1465,6 +1465,181 @@
                     }
                 }
             }
+        },
+        "/webhooks/cronitor/{code}": {
+            "post": {
+                "tags": ["webhooks"],
+                "summary": "Receive a Cronitor Statuspage webhook",
+                "operationId": "post.webhooks.cronitor",
+                "description": "Receives inbound incident event payloads from a Cronitor Statuspage subscription. The `{code}` path segment identifies the registered source — Silvia checks it against a list of known sources and will swat away anything she doesn't recognise.\n\nEach event (`incident.opened`, `incident.updated`, `incident.resolved`) is stored and forwarded to configured notification channels (Discord, Telegram). Duplicate deliveries with the same `update.timestamp` are safely ignored — Silvia never reports the same hairball twice.\n\nThis endpoint requires no authentication token; access is gated solely by the source `{code}`.",
+                "security": [],
+                "parameters": [
+                    {
+                        "name": "code",
+                        "in": "path",
+                        "required": true,
+                        "description": "The unique source code registered for this Cronitor Statuspage subscription. Sam guards the list — unknown codes get a 404.",
+                        "schema": {
+                            "type": "string",
+                            "example": "iriks-it"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "description": "Cronitor Statuspage webhook payload. Must contain both an `event` field and an `incident` object.",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": ["event", "timestamp", "incident"],
+                                "properties": {
+                                    "event": {
+                                        "type": "string",
+                                        "enum": ["incident.opened", "incident.updated", "incident.resolved"],
+                                        "example": "incident.opened"
+                                    },
+                                    "timestamp": {
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "example": "2026-05-11T10:00:00Z"
+                                    },
+                                    "statuspage": {
+                                        "type": "object",
+                                        "properties": {
+                                            "key": { "type": "string", "example": "sp_abc123" },
+                                            "name": { "type": "string", "example": "Iriks-IT" },
+                                            "url": { "type": "string", "format": "uri", "example": "https://status.iriks-it.nl" }
+                                        }
+                                    },
+                                    "incident": {
+                                        "type": "object",
+                                        "required": ["key", "name", "state", "severity"],
+                                        "properties": {
+                                            "key": { "type": "string", "example": "inc_xyz789" },
+                                            "name": { "type": "string", "example": "Sam knocked the API server off the desk" },
+                                            "state": { "type": "string", "example": "investigating", "description": "Current incident state: investigating, identified, watching, resolved." },
+                                            "severity": { "type": "string", "example": "major_outage", "description": "degraded_performance, partial_outage, major_outage, or maintenance." },
+                                            "started": { "type": "string", "format": "date-time", "example": "2026-05-11T09:55:00Z" },
+                                            "url": { "type": "string", "format": "uri", "example": "https://status.iriks-it.nl/incidents/inc_xyz789" },
+                                            "affected_components": {
+                                                "type": "array",
+                                                "items": { "type": "string" },
+                                                "example": ["API", "Auth"]
+                                            }
+                                        }
+                                    },
+                                    "update": {
+                                        "type": "object",
+                                        "properties": {
+                                            "state": { "type": "string", "example": "investigating" },
+                                            "message": { "type": "string", "example": "Silvia is investigating. Sam has been removed from the server room." },
+                                            "timestamp": { "type": "string", "format": "date-time", "example": "2026-05-11T10:00:00Z" }
+                                        }
+                                    }
+                                }
+                            },
+                            "examples": {
+                                "incident.opened": {
+                                    "summary": "New incident — Sam struck again",
+                                    "value": {
+                                        "event": "incident.opened",
+                                        "timestamp": "2026-05-11T10:00:00Z",
+                                        "statuspage": { "key": "sp_abc123", "name": "Iriks-IT", "url": "https://status.iriks-it.nl" },
+                                        "incident": {
+                                            "key": "inc_xyz789",
+                                            "name": "Sam knocked the API server off the desk",
+                                            "state": "investigating",
+                                            "severity": "major_outage",
+                                            "started": "2026-05-11T09:55:00Z",
+                                            "url": "https://status.iriks-it.nl/incidents/inc_xyz789",
+                                            "affected_components": ["API"]
+                                        },
+                                        "update": {
+                                            "state": "investigating",
+                                            "message": "Silvia is investigating. Sam has been removed from the server room.",
+                                            "timestamp": "2026-05-11T10:00:00Z"
+                                        }
+                                    }
+                                },
+                                "incident.updated": {
+                                    "summary": "Incident update — Silvia has identified the culprit",
+                                    "value": {
+                                        "event": "incident.updated",
+                                        "timestamp": "2026-05-11T10:30:00Z",
+                                        "statuspage": { "key": "sp_abc123", "name": "Iriks-IT", "url": "https://status.iriks-it.nl" },
+                                        "incident": {
+                                            "key": "inc_xyz789",
+                                            "name": "Sam knocked the API server off the desk",
+                                            "state": "identified",
+                                            "severity": "major_outage",
+                                            "started": "2026-05-11T09:55:00Z",
+                                            "url": "https://status.iriks-it.nl/incidents/inc_xyz789",
+                                            "affected_components": ["API"]
+                                        },
+                                        "update": {
+                                            "state": "identified",
+                                            "message": "Root cause identified: Sam sat on the power button. Silvia is monitoring recovery.",
+                                            "timestamp": "2026-05-11T10:30:00Z"
+                                        }
+                                    }
+                                },
+                                "incident.resolved": {
+                                    "summary": "Incident resolved — Sam given a timeout",
+                                    "value": {
+                                        "event": "incident.resolved",
+                                        "timestamp": "2026-05-11T11:00:00Z",
+                                        "statuspage": { "key": "sp_abc123", "name": "Iriks-IT", "url": "https://status.iriks-it.nl" },
+                                        "incident": {
+                                            "key": "inc_xyz789",
+                                            "name": "Sam knocked the API server off the desk",
+                                            "state": "resolved",
+                                            "severity": "major_outage",
+                                            "started": "2026-05-11T09:55:00Z",
+                                            "url": "https://status.iriks-it.nl/incidents/inc_xyz789",
+                                            "affected_components": ["API"]
+                                        },
+                                        "update": {
+                                            "state": "resolved",
+                                            "message": "Service fully restored. Sam has been given a timeout.",
+                                            "timestamp": "2026-05-11T11:00:00Z"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Webhook received and queued for processing. Silvia will handle it with her usual efficiency.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/response.success" },
+                                "example": {
+                                    "success": true,
+                                    "code": 200,
+                                    "data": [],
+                                    "message": "Webhook received."
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Unknown source code. Silvia does not recognise this visitor.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/response.error" },
+                                "example": {
+                                    "success": false,
+                                    "code": 404,
+                                    "message": "Unknown webhook code."
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "components": {
