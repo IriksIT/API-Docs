@@ -2,7 +2,7 @@
   "openapi": "3.0.3",
   "info": {
     "title": "Iriks-IT API",
-    "description": "The official API for [Iriks-IT](https://iriks-it.nl). Powering tools, collections, and mischief since Sam knocked the first server off the desk.\n\n> *\"Why did Sam write the API docs? Because Silvia said if he didn't, she'd replace him with a 404 page.\"*\n\nAll authenticated endpoints require a Bearer token obtained via `/auth/login`. Tokens expire after **24 hours** â€” roughly the time it takes Silvia to forgive you for waking her up.",
+    "description": "The official API for [Iriks-IT](https://iriks-it.nl). Powering tools, collections, and mischief since Sam knocked the first server off the desk.\n\n> *\"Why did Sam write the API docs? Because Silvia said if he didn't, she'd replace him with a 404 page.\"*\n\nAll authenticated endpoints require a Bearer token obtained via `/auth/login`. Tokens expire after **24 hours** — roughly the time it takes Silvia to forgive you for waking her up.",
     "termsOfService": "https://iriks-it.nl/api-terms/",
     "contact": {
       "email": "devop@iriks-it.nl",
@@ -14,7 +14,7 @@
       "backgroundColor": "#FFFFFF",
       "altText": "Iriks-IT Logo"
     },
-    "version": "1.19.1"
+    "version": "1.20.0"
   },
   "externalDocs": {
     "description": "Find out more about Iriks-IT",
@@ -23,7 +23,7 @@
   "servers": [
     {
       "url": "https://api.iriks-it.nl/v1",
-      "description": "Production â€” where Sam and Silvia live"
+      "description": "Production — where Sam and Silvia live"
     }
   ],
   "security": [
@@ -34,11 +34,7 @@
   "tags": [
     {
       "name": "account",
-      "description": "Purr-fectly secure account management. Sam and Silvia got in, so can you. Email verification required â€” no exceptions, not even for cats."
-    },
-    {
-      "name": "products",
-      "description": "Product catalog API. Sam has already knocked most items off the shelf, but they're all still in the database."
+      "description": "Purr-fectly secure account management. Sam and Silvia got in, so can you. Email verification required — no exceptions, not even for cats."
     },
     {
       "name": "hotwheels",
@@ -46,15 +42,15 @@
     },
     {
       "name": "tools",
-      "description": "Utility endpoints for IP intelligence. Sam sniffs every packet â€” you get a nice JSON response instead."
+      "description": "Utility endpoints for IP intelligence. Sam sniffs every packet — you get a nice JSON response instead."
     },
     {
       "name": "webhooks",
-      "description": "Inbound webhook receivers. Silvia sits on the server and intercepts every status update â€” nothing gets past her."
+      "description": "Inbound webhook receivers. Silvia sits on the server and intercepts every status update — nothing gets past her."
     },
     {
       "name": "vrchat",
-      "description": "VRChat group utilities. Silvia runs the door policy â€” Sam checks the ban list. Neither of them tolerates rule-breakers."
+      "description": "VRChat group utilities. Silvia runs the door policy — Sam checks the ban list. Neither of them tolerates rule-breakers."
     }
   ],
   "paths": {
@@ -65,7 +61,7 @@
         ],
         "summary": "Register a new account",
         "operationId": "post.account.register",
-        "description": "Register your account here. You will receive a verification email â€” check your inbox, not your spam (or your cat's food bowl). You must verify before you can log in.",
+        "description": "Register your account here. You will receive a verification email — check your inbox, not your spam (or your cat's food bowl). You must verify before you can log in.",
         "security": [],
         "requestBody": {
           "$ref": "#/components/requestBodies/account.register"
@@ -122,7 +118,7 @@
         ],
         "summary": "Verify your account",
         "operationId": "post.account.verify",
-        "description": "You found the verification code in your email â€” now submit it here to unlock API access. Unlike Sam, who needs zero verification to knock things off tables.",
+        "description": "You found the verification code in your email — now submit it here to unlock API access. Unlike Sam, who needs zero verification to knock things off tables.",
         "security": [],
         "requestBody": {
           "$ref": "#/components/requestBodies/account.verify"
@@ -145,7 +141,7 @@
             }
           },
           "409": {
-            "description": "Verification failed â€” invalid or expired code.",
+            "description": "Verification failed — invalid or expired code.",
             "content": {
               "application/json": {
                 "schema": {
@@ -176,14 +172,14 @@
         ],
         "summary": "Log in and obtain a Bearer token",
         "operationId": "post.account.login",
-        "description": "Exchange your credentials for an access token and a refresh token. The access token expires after 24 hours â€” about the same time Sam takes to forgive you for closing the bedroom door. The refresh token is valid for 30 days and can be exchanged at `/auth/refresh` for a fresh pair. You must have verified your account first.",
+        "description": "Exchange your credentials for an access token and a refresh token. The access token expires after 24 hours — about the same time Sam takes to forgive you for closing the bedroom door. The refresh token is valid for 30 days and can be exchanged at `/auth/refresh` for a fresh pair. You must have verified your account first.",
         "security": [],
         "requestBody": {
           "$ref": "#/components/requestBodies/account.login"
         },
         "responses": {
           "200": {
-            "description": "Login successful. Use `token` as `Authorization: Bearer <token>` on all protected endpoints. Store `refresh_token` securely â€” Sam guards his with his life.",
+            "description": "Login successful. Use `token` as `Authorization: Bearer <token>` on all protected endpoints. Store `refresh_token` securely — Sam guards his with his life.",
             "content": {
               "application/json": {
                 "schema": {
@@ -205,7 +201,7 @@
             }
           },
           "403": {
-            "description": "Account not verified yet â€” Silvia is still screening you.",
+            "description": "Account not verified yet — Silvia is still screening you.",
             "content": {
               "application/json": {
                 "schema": {
@@ -236,7 +232,7 @@
         ],
         "summary": "Refresh your access token",
         "operationId": "post.account.refresh",
-        "description": "Exchange a valid refresh token for a fresh access token + refresh token pair. The old refresh token is immediately invalidated â€” single-use, like Sam's patience when his food bowl is empty.\n\nSend the refresh token (not the access token) in the `Authorization: Bearer` header. Using an access token here will be rejected with 403.",
+        "description": "Exchange a valid refresh token for a fresh access token + refresh token pair. The old refresh token is immediately invalidated — single-use, like Sam's patience when his food bowl is empty.\n\nSend the refresh token (not the access token) in the `Authorization: Bearer` header. Using an access token here will be rejected with 403.",
         "security": [
           {
             "BearerToken": []
@@ -244,7 +240,7 @@
         ],
         "responses": {
           "200": {
-            "description": "New token pair issued. The old refresh token is now dead â€” Silvia shredded it.",
+            "description": "New token pair issued. The old refresh token is now dead — Silvia shredded it.",
             "content": {
               "application/json": {
                 "schema": {
@@ -266,7 +262,7 @@
             }
           },
           "401": {
-            "description": "The refresh token was not found â€” it may have already been used or expired. Sam says no.",
+            "description": "The refresh token was not found — it may have already been used or expired. Sam says no.",
             "content": {
               "application/json": {
                 "schema": {
@@ -281,7 +277,7 @@
             }
           },
           "403": {
-            "description": "The token provided does not have the `token-refresh` ability. You likely sent an access token instead of a refresh token â€” Silvia can tell the difference.",
+            "description": "The token provided does not have the `token-refresh` ability. You likely sent an access token instead of a refresh token — Silvia can tell the difference.",
             "content": {
               "application/json": {
                 "schema": {
@@ -294,354 +290,6 @@
                 }
               }
             }
-          },
-          "429": {
-            "$ref": "#/components/responses/default429"
-          }
-        }
-      }
-    },
-    "/products": {
-      "get": {
-        "tags": [
-          "products"
-        ],
-        "summary": "List all products",
-        "operationId": "get.products.index",
-        "description": "Returns all products. Sam has inspected every single one and found most of them interesting enough to sit on.",
-        "responses": {
-          "200": {
-            "description": "Products retrieved successfully.",
-            "headers": {
-              "X-RateLimit-Limit": {
-                "$ref": "#/components/headers/X-RateLimit-Limit"
-              },
-              "X-RateLimit-Remaining": {
-                "$ref": "#/components/headers/X-RateLimit-Remaining"
-              },
-              "X-RateLimit-Reset": {
-                "$ref": "#/components/headers/X-RateLimit-Reset"
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": true
-                    },
-                    "code": {
-                      "type": "integer",
-                      "example": 200
-                    },
-                    "data": {
-                      "type": "array",
-                      "items": {
-                        "$ref": "#/components/schemas/product"
-                      }
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Products retrieved successfully."
-                    }
-                  }
-                },
-                "example": {
-                  "success": true,
-                  "code": 200,
-                  "data": [
-                    {
-                      "id": 1,
-                      "name": "Premium Cat Food â€” Sam's Choice",
-                      "detail": "Sam rated this 10/10. He ate the whole bag in one sitting and then knocked the empty bag off the counter.",
-                      "created_at": "19/04/2026",
-                      "updated_at": "19/04/2026"
-                    },
-                    {
-                      "id": 2,
-                      "name": "Interactive Laser Pointer â€” Silvia Edition",
-                      "detail": "Silvia has been chasing this dot since 2023. She has yet to catch it. We consider this a feature.",
-                      "created_at": "19/04/2026",
-                      "updated_at": "19/04/2026"
-                    }
-                  ],
-                  "message": "Products retrieved successfully."
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/default401"
-          },
-          "429": {
-            "$ref": "#/components/responses/default429"
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "products"
-        ],
-        "summary": "Create a product",
-        "operationId": "post.products.store",
-        "description": "Create a new product. Sam will immediately investigate it and determine whether it belongs on the floor.",
-        "requestBody": {
-          "$ref": "#/components/requestBodies/product.store"
-        },
-        "responses": {
-          "200": {
-            "description": "Product created successfully.",
-            "headers": {
-              "X-RateLimit-Limit": {
-                "$ref": "#/components/headers/X-RateLimit-Limit"
-              },
-              "X-RateLimit-Remaining": {
-                "$ref": "#/components/headers/X-RateLimit-Remaining"
-              },
-              "X-RateLimit-Reset": {
-                "$ref": "#/components/headers/X-RateLimit-Reset"
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": true
-                    },
-                    "code": {
-                      "type": "integer",
-                      "example": 200
-                    },
-                    "data": {
-                      "$ref": "#/components/schemas/product"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Product created successfully."
-                    }
-                  }
-                },
-                "example": {
-                  "success": true,
-                  "code": 200,
-                  "data": {
-                    "id": 3,
-                    "name": "Catnip Deluxe",
-                    "detail": "Silvia's weakness. Sam pretends he doesn't care, then steals it at 3 AM.",
-                    "created_at": "19/04/2026",
-                    "updated_at": "19/04/2026"
-                  },
-                  "message": "Product created successfully."
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/default401"
-          },
-          "406": {
-            "$ref": "#/components/responses/default406"
-          },
-          "429": {
-            "$ref": "#/components/responses/default429"
-          }
-        }
-      }
-    },
-    "/products/{id}": {
-      "get": {
-        "tags": [
-          "products"
-        ],
-        "summary": "Get a product",
-        "operationId": "get.products.show",
-        "description": "Retrieve a single product by ID. If Sam knocked it off the shelf, it still exists in the database.",
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/id"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Product retrieved successfully.",
-            "headers": {
-              "X-RateLimit-Limit": {
-                "$ref": "#/components/headers/X-RateLimit-Limit"
-              },
-              "X-RateLimit-Remaining": {
-                "$ref": "#/components/headers/X-RateLimit-Remaining"
-              },
-              "X-RateLimit-Reset": {
-                "$ref": "#/components/headers/X-RateLimit-Reset"
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": true
-                    },
-                    "code": {
-                      "type": "integer",
-                      "example": 200
-                    },
-                    "data": {
-                      "$ref": "#/components/schemas/product"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Product retrieved successfully."
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/default401"
-          },
-          "404": {
-            "$ref": "#/components/responses/default404"
-          },
-          "429": {
-            "$ref": "#/components/responses/default429"
-          }
-        }
-      },
-      "put": {
-        "tags": [
-          "products"
-        ],
-        "summary": "Update a product",
-        "operationId": "put.products.update",
-        "description": "Update an existing product. Silvia reviewed the change and gave it a slow blink of approval.",
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/id"
-          }
-        ],
-        "requestBody": {
-          "$ref": "#/components/requestBodies/product.store"
-        },
-        "responses": {
-          "200": {
-            "description": "Product updated successfully.",
-            "headers": {
-              "X-RateLimit-Limit": {
-                "$ref": "#/components/headers/X-RateLimit-Limit"
-              },
-              "X-RateLimit-Remaining": {
-                "$ref": "#/components/headers/X-RateLimit-Remaining"
-              },
-              "X-RateLimit-Reset": {
-                "$ref": "#/components/headers/X-RateLimit-Reset"
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": true
-                    },
-                    "code": {
-                      "type": "integer",
-                      "example": 200
-                    },
-                    "data": {
-                      "$ref": "#/components/schemas/product"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Product updated successfully."
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/default401"
-          },
-          "404": {
-            "$ref": "#/components/responses/default404"
-          },
-          "406": {
-            "$ref": "#/components/responses/default406"
-          },
-          "429": {
-            "$ref": "#/components/responses/default429"
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "products"
-        ],
-        "summary": "Delete a product",
-        "operationId": "delete.products.destroy",
-        "description": "Permanently delete a product. Unlike Sam's attitude when you're five minutes late with breakfast, this action cannot be taken back.",
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/id"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Product deleted successfully.",
-            "headers": {
-              "X-RateLimit-Limit": {
-                "$ref": "#/components/headers/X-RateLimit-Limit"
-              },
-              "X-RateLimit-Remaining": {
-                "$ref": "#/components/headers/X-RateLimit-Remaining"
-              },
-              "X-RateLimit-Reset": {
-                "$ref": "#/components/headers/X-RateLimit-Reset"
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": true
-                    },
-                    "code": {
-                      "type": "integer",
-                      "example": 200
-                    },
-                    "data": {
-                      "type": "array",
-                      "items": {},
-                      "example": []
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Product deleted successfully."
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/default401"
-          },
-          "404": {
-            "$ref": "#/components/responses/default404"
           },
           "429": {
             "$ref": "#/components/responses/default429"
@@ -1010,7 +658,7 @@
         ],
         "summary": "Look up an IP address",
         "operationId": "get.tools.ip.show",
-        "description": "Returns geolocation, ASN, proxy detection, and AbuseIPDB threat intelligence for an IPv4 or IPv6 address. Sam sniffs every packet â€” you get structured JSON.\n\nRequires the `ip.lookup` permission scope on your token.\n\n**Caching:** AbuseIPDB results are cached for 14 days per IP to stay well within rate limits. Fresh data is fetched automatically when the cache expires.",
+        "description": "Returns geolocation, ASN, proxy detection, and AbuseIPDB threat intelligence for an IPv4 or IPv6 address. Sam sniffs every packet — you get structured JSON.\n\nRequires the `ip.lookup` permission scope on your token.\n\n**Caching:** AbuseIPDB results are cached for 14 days per IP to stay well within rate limits. Fresh data is fetched automatically when the cache expires.",
         "parameters": [
           {
             "name": "ip",
@@ -1300,7 +948,7 @@
             }
           },
           "422": {
-            "description": "Validation failed. Check your field values â€” Sam flagged them.",
+            "description": "Validation failed. Check your field values — Sam flagged them.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1362,7 +1010,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Lookup completed. `banned: false` means the user is clean â€” for now. Silvia is watching.",
+            "description": "Lookup completed. `banned: false` means the user is clean — for now. Silvia is watching.",
             "headers": {
               "X-RateLimit-Limit": {
                 "$ref": "#/components/headers/X-RateLimit-Limit"
@@ -1487,7 +1135,7 @@
             }
           },
           "422": {
-            "description": "The provided value is not a valid VRChat user ID. Silvia only accepts `usr_<uuid>` format â€” she has standards.",
+            "description": "The provided value is not a valid VRChat user ID. Silvia only accepts `usr_<uuid>` format — she has standards.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1515,13 +1163,13 @@
         ],
         "summary": "Look up a VRChat user by ID",
         "operationId": "get.vrchat.lookup",
-        "description": "Fetches public profile information for a VRChat user directly from the VRChat API. Returns a curated set of public fields â€” location, friend status, login timestamps, and other private fields are intentionally omitted.\n\nRequires the `vrchat.lookup` permission scope on your token.\n\n> *\"Silvia personally reviews every lookup. Sam just checks if it's his own ID so he can update his bio to 'not guilty'.\"*",
+        "description": "Fetches public profile information for a VRChat user directly from the VRChat API. Returns a curated set of public fields — location, friend status, login timestamps, and other private fields are intentionally omitted.\n\nRequires the `vrchat.lookup` permission scope on your token.\n\n> *\"Silvia personally reviews every lookup. Sam just checks if it's his own ID so he can update his bio to 'not guilty'.\"*",
         "parameters": [
           {
             "name": "userId",
             "in": "path",
             "required": true,
-            "description": "The VRChat user ID to look up. Must match the format `usr_<uuid>`. Silvia only accepts valid IDs â€” she has standards.",
+            "description": "The VRChat user ID to look up. Must match the format `usr_<uuid>`. Silvia only accepts valid IDs — she has standards.",
             "schema": {
               "type": "string",
               "example": "usr_00000000-0000-0000-0000-000000000001"
@@ -1707,7 +1355,7 @@
             }
           },
           "404": {
-            "description": "VRChat user not found or the VRChat API returned no data. Sam checked twice â€” they're not there.",
+            "description": "VRChat user not found or the VRChat API returned no data. Sam checked twice — they're not there.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1723,7 +1371,7 @@
             }
           },
           "422": {
-            "description": "The provided value is not a valid VRChat user ID. Must match `usr_<uuid>`. Silvia only accepts valid IDs â€” she has standards.",
+            "description": "The provided value is not a valid VRChat user ID. Must match `usr_<uuid>`. Silvia only accepts valid IDs — she has standards.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1751,14 +1399,14 @@
         ],
         "summary": "Receive an Atlassian Statuspage webhook",
         "operationId": "post.webhooks.statuspage",
-        "description": "Receives inbound incident or component-update payloads from an Atlassian Statuspage subscription. The `{code}` path segment identifies the registered source â€” Silvia checks it against a list of known sources and meows loudly if it is not recognised.\n\nNew incident updates are stored and forwarded to configured notification channels (Discord, Telegram). Duplicate deliveries are safely ignored â€” Silvia never processes the same update twice.\n\nThis endpoint requires no authentication token; access is gated solely by the source `{code}`.",
+        "description": "Receives inbound incident or component-update payloads from an Atlassian Statuspage subscription. The `{code}` path segment identifies the registered source — Silvia checks it against a list of known sources and meows loudly if it is not recognised.\n\nNew incident updates are stored and forwarded to configured notification channels (Discord, Telegram). Duplicate deliveries are safely ignored — Silvia never processes the same update twice.\n\nThis endpoint requires no authentication token; access is gated solely by the source `{code}`.",
         "security": [],
         "parameters": [
           {
             "name": "code",
             "in": "path",
             "required": true,
-            "description": "The unique source code registered for this Statuspage subscription. Sam guards the list â€” unknown codes get a 404.",
+            "description": "The unique source code registered for this Statuspage subscription. Sam guards the list — unknown codes get a 404.",
             "schema": {
               "type": "string",
               "example": "vrchat"
@@ -1900,7 +1548,7 @@
               },
               "examples": {
                 "incident": {
-                  "summary": "Incident update â€” Silvia spotted an outage",
+                  "summary": "Incident update — Silvia spotted an outage",
                   "value": {
                     "meta": {
                       "unsubscribe": "https://status.vrchat.com/?unsubscribe=abc"
@@ -1921,7 +1569,7 @@
                         {
                           "id": "qbbsfhy5s9kk",
                           "status": "investigating",
-                          "body": "We are investigating the issue â€” Sam is being gently removed from the server room.",
+                          "body": "We are investigating the issue — Sam is being gently removed from the server room.",
                           "display_at": "2026-04-27T10:00:00Z"
                         }
                       ]
@@ -1929,7 +1577,7 @@
                   }
                 },
                 "component": {
-                  "summary": "Component update â€” Silvia approves",
+                  "summary": "Component update — Silvia approves",
                   "value": {
                     "meta": {
                       "unsubscribe": "https://status.vrchat.com/?unsubscribe=abc"
@@ -1998,14 +1646,14 @@
         ],
         "summary": "Receive a Cronitor Statuspage webhook",
         "operationId": "post.webhooks.cronitor",
-        "description": "Receives inbound incident event payloads from a Cronitor Statuspage subscription. The `{code}` path segment identifies the registered source â€” Silvia checks it against a list of known sources and will swat away anything she doesn't recognise.\n\nEach event (`incident.opened`, `incident.updated`, `incident.resolved`) is stored and forwarded to configured notification channels (Discord, Telegram). Duplicate deliveries with the same `update.timestamp` are safely ignored â€” Silvia never reports the same hairball twice.\n\nThis endpoint requires no authentication token; access is gated solely by the source `{code}`.",
+        "description": "Receives inbound incident event payloads from a Cronitor Statuspage subscription. The `{code}` path segment identifies the registered source — Silvia checks it against a list of known sources and will swat away anything she doesn't recognise.\n\nEach event (`incident.opened`, `incident.updated`, `incident.resolved`) is stored and forwarded to configured notification channels (Discord, Telegram). Duplicate deliveries with the same `update.timestamp` are safely ignored — Silvia never reports the same hairball twice.\n\nThis endpoint requires no authentication token; access is gated solely by the source `{code}`.",
         "security": [],
         "parameters": [
           {
             "name": "code",
             "in": "path",
             "required": true,
-            "description": "The unique source code registered for this Cronitor Statuspage subscription. Sam guards the list â€” unknown codes get a 404.",
+            "description": "The unique source code registered for this Cronitor Statuspage subscription. Sam guards the list — unknown codes get a 404.",
             "schema": {
               "type": "string",
               "example": "iriks-it"
@@ -2128,7 +1776,7 @@
               },
               "examples": {
                 "incident.opened": {
-                  "summary": "New incident â€” Sam struck again",
+                  "summary": "New incident — Sam struck again",
                   "value": {
                     "event": "incident.opened",
                     "timestamp": "2026-05-11T10:00:00Z",
@@ -2156,7 +1804,7 @@
                   }
                 },
                 "incident.updated": {
-                  "summary": "Incident update â€” Silvia has identified the culprit",
+                  "summary": "Incident update — Silvia has identified the culprit",
                   "value": {
                     "event": "incident.updated",
                     "timestamp": "2026-05-11T10:30:00Z",
@@ -2184,7 +1832,7 @@
                   }
                 },
                 "incident.resolved": {
-                  "summary": "Incident resolved â€” Sam given a timeout",
+                  "summary": "Incident resolved — Sam given a timeout",
                   "value": {
                     "event": "incident.resolved",
                     "timestamp": "2026-05-11T11:00:00Z",
@@ -2360,7 +2008,7 @@
               },
               "refresh_token": {
                 "type": "string",
-                "description": "Long-lived refresh token. Valid for 30 days. Single-use â€” exchange it at `/auth/refresh` for a new pair. Store securely; Sam treats his like a state secret.",
+                "description": "Long-lived refresh token. Valid for 30 days. Single-use — exchange it at `/auth/refresh` for a new pair. Store securely; Sam treats his like a state secret.",
                 "example": "4|rG41AWZ3yX2PYKjfNMYiVYApxxhWHWcn7G4lTpU825f15efd"
               },
               "refresh_expire": {
@@ -2445,49 +2093,6 @@
             "type": "string",
             "format": "password",
             "example": "g!v3m3f00dn0w!"
-          }
-        }
-      },
-      "product": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int64",
-            "example": 1
-          },
-          "name": {
-            "type": "string",
-            "example": "Premium Cat Food â€” Sam's Choice"
-          },
-          "detail": {
-            "type": "string",
-            "example": "Sam rated this 10/10. He ate the whole bag and then knocked the empty bag off the counter."
-          },
-          "created_at": {
-            "type": "string",
-            "example": "19/04/2026"
-          },
-          "updated_at": {
-            "type": "string",
-            "example": "19/04/2026"
-          }
-        }
-      },
-      "product.input": {
-        "required": [
-          "name",
-          "detail"
-        ],
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "example": "Catnip Deluxe"
-          },
-          "detail": {
-            "type": "string",
-            "example": "Silvia's weakness. Sam pretends he doesn't care, then steals it at 3 AM."
           }
         }
       },
@@ -2800,7 +2405,7 @@
           },
           "metro": {
             "nullable": true,
-            "description": "Metro area info (US only). Null outside the US â€” Sam is based in the Netherlands.",
+            "description": "Metro area info (US only). Null outside the US — Sam is based in the Netherlands.",
             "type": "object",
             "properties": {
               "code": {
@@ -2837,7 +2442,7 @@
             "properties": {
               "score": {
                 "type": "integer",
-                "description": "Threat score 0â€“100. Primary: AbuseIPDB `abuse_confidence_score` (per-IP, full weight). Secondary: ip2location `fraud_score` at 25% (block-level signal). Plus any custom country/rule modifiers. When AbuseIPDB data is unavailable, ip2location `fraud_score` is used as the sole base. Always clamped to 100.",
+                "description": "Threat score 0–100. Primary: AbuseIPDB `abuse_confidence_score` (per-IP, full weight). Secondary: ip2location `fraud_score` at 25% (block-level signal). Plus any custom country/rule modifiers. When AbuseIPDB data is unavailable, ip2location `fraud_score` is used as the sole base. Always clamped to 100.",
                 "example": 75
               },
               "is_proxy": {
@@ -2884,13 +2489,13 @@
                 "type": "string",
                 "format": "date-time",
                 "nullable": true,
-                "description": "When we last fetched AbuseIPDB data for this IP. Results are cached for 14 days â€” Silvia updates her records on schedule.",
+                "description": "When we last fetched AbuseIPDB data for this IP. Results are cached for 14 days — Silvia updates her records on schedule.",
                 "example": "2026-04-19T14:00:00+00:00"
               },
               "reports": {
                 "nullable": true,
                 "type": "array",
-                "description": "Up to 50 most recent AbuseIPDB reports for this IP. Null if AbuseIPDB data is unavailable. History is accumulated across checks â€” Silvia never forgets a grudge.",
+                "description": "Up to 50 most recent AbuseIPDB reports for this IP. Null if AbuseIPDB data is unavailable. History is accumulated across checks — Silvia never forgets a grudge.",
                 "items": {
                   "type": "object",
                   "properties": {
@@ -2935,7 +2540,7 @@
     },
     "headers": {
       "X-RateLimit-Limit": {
-        "description": "The maximum number of requests allowed in the current window. Silvia gets 1000 head-scritches per day â€” you get 1000 requests.",
+        "description": "The maximum number of requests allowed in the current window. Silvia gets 1000 head-scritches per day — you get 1000 requests.",
         "schema": {
           "type": "integer",
           "example": 1000
@@ -2961,7 +2566,7 @@
       "BearerToken": {
         "type": "http",
         "scheme": "bearer",
-        "description": "A token obtained from `/auth/login`. Valid for 24 hours â€” about as long as Sam stays mad after you close the bathroom door. Place it in the `Authorization: Bearer <token>` header."
+        "description": "A token obtained from `/auth/login`. Valid for 24 hours — about as long as Sam stays mad after you close the bathroom door. Place it in the `Authorization: Bearer <token>` header."
       }
     },
     "requestBodies": {
@@ -2995,16 +2600,6 @@
           }
         }
       },
-      "product.store": {
-        "required": true,
-        "content": {
-          "application/json": {
-            "schema": {
-              "$ref": "#/components/schemas/product.input"
-            }
-          }
-        }
-      },
       "hotwheels.store": {
         "required": true,
         "content": {
@@ -3028,7 +2623,7 @@
     },
     "responses": {
       "default401": {
-        "description": "Unauthenticated â€” no valid Bearer token provided. Sam wants to see your credentials.",
+        "description": "Unauthenticated — no valid Bearer token provided. Sam wants to see your credentials.",
         "content": {
           "application/json": {
             "schema": {
@@ -3044,7 +2639,7 @@
         }
       },
       "default404": {
-        "description": "Not found â€” Sam looked everywhere, including under the sofa.",
+        "description": "Not found — Sam looked everywhere, including under the sofa.",
         "content": {
           "application/json": {
             "schema": {
@@ -3060,7 +2655,7 @@
         }
       },
       "default406": {
-        "description": "Validation error â€” check the `data` object for field-level details. Silvia says fill in all the required fields.",
+        "description": "Validation error — check the `data` object for field-level details. Silvia says fill in all the required fields.",
         "content": {
           "application/json": {
             "schema": {
@@ -3096,7 +2691,7 @@
         }
       },
       "default429": {
-        "description": "Rate limit exceeded â€” even Silvia naps less than this. Check `Retry-After` and try again when the window resets.",
+        "description": "Rate limit exceeded — even Silvia naps less than this. Check `Retry-After` and try again when the window resets.",
         "headers": {
           "X-RateLimit-Limit": {
             "$ref": "#/components/headers/X-RateLimit-Limit"
@@ -3123,13 +2718,13 @@
             "example": {
               "success": false,
               "code": 429,
-              "message": "Too Many Requests â€” even Silvia naps less than this."
+              "message": "Too Many Requests — even Silvia naps less than this."
             }
           }
         }
       },
       "default505": {
-        "description": "Request was not sent over HTTPS. Sam refuses to transmit plaintext â€” he has standards.",
+        "description": "Request was not sent over HTTPS. Sam refuses to transmit plaintext — he has standards.",
         "content": {
           "application/json": {
             "schema": {
