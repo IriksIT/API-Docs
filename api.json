@@ -14,7 +14,7 @@
       "backgroundColor": "#FFFFFF",
       "altText": "Iriks-IT Logo"
     },
-    "version": "1.25.0"
+    "version": "1.26.0"
   },
   "externalDocs": {
     "description": "Find out more about Iriks-IT",
@@ -852,6 +852,7 @@
                 "type": "object",
                 "required": [
                   "vrchat_user_id",
+                  "group_id",
                   "name",
                   "email",
                   "reason"
@@ -861,6 +862,11 @@
                     "type": "string",
                     "description": "Your VRChat user ID. Must match `usr_<uuid>` format.",
                     "example": "usr_00000000-0000-0000-0000-000000000001"
+                  },
+                  "group_id": {
+                    "type": "string",
+                    "description": "The VRChat group ID you were banned from. Must match `grp_<id>` format. Silvia checks every letter.",
+                    "example": "grp_silvia-and-sam"
                   },
                   "name": {
                     "type": "string",
@@ -1005,6 +1011,16 @@
             "schema": {
               "type": "string",
               "example": "usr_00000000-0000-0000-0000-000000000001"
+            }
+          },
+          {
+            "name": "group_id",
+            "in": "query",
+            "required": true,
+            "description": "The VRChat group ID to scope the ban check to. Must match `grp_<id>` format.",
+            "schema": {
+              "type": "string",
+              "example": "grp_silvia-and-sam"
             }
           }
         ],
@@ -1174,6 +1190,16 @@
               "type": "string",
               "example": "usr_00000000-0000-0000-0000-000000000001"
             }
+          },
+          {
+            "name": "group_id",
+            "in": "query",
+            "required": true,
+            "description": "The VRChat group ID to scope the lookup to. Must match `grp_<id>` format. Used to enrich the response with the member's group status.",
+            "schema": {
+              "type": "string",
+              "example": "grp_silvia-and-sam"
+            }
           }
         ],
         "responses": {
@@ -1300,6 +1326,36 @@
                           "type": "string",
                           "nullable": true,
                           "example": ""
+                        },
+                        "group_membership": {
+                          "nullable": true,
+                          "description": "The user's current membership record for the requested group, or `null` if they have no history there.",
+                          "type": "object",
+                          "properties": {
+                            "status": {
+                              "type": "string",
+                              "example": "member",
+                              "description": "Membership status: `member`, `moderator`, `inactive`, `banned`, etc."
+                            },
+                            "joined_at": {
+                              "type": "string",
+                              "format": "date-time",
+                              "nullable": true,
+                              "example": "2026-01-01T00:00:00.000000Z"
+                            },
+                            "left_at": {
+                              "type": "string",
+                              "format": "date-time",
+                              "nullable": true,
+                              "example": null
+                            },
+                            "banned_at": {
+                              "type": "string",
+                              "format": "date-time",
+                              "nullable": true,
+                              "example": null
+                            }
+                          }
                         }
                       }
                     }
@@ -1328,7 +1384,13 @@
                     "avatar_thumbnail_url": "https://api.vrchat.cloud/api/1/image/thumbnail.png",
                     "profile_pic_override": "",
                     "profile_pic_override_thumbnail": "",
-                    "user_icon": ""
+                    "user_icon": "",
+                    "group_membership": {
+                      "status": "moderator",
+                      "joined_at": "2026-01-01T00:00:00.000000Z",
+                      "left_at": null,
+                      "banned_at": null
+                    }
                   },
                   "message": "VRChat user retrieved."
                 }
@@ -1382,6 +1444,1078 @@
                   "code": 422,
                   "data": "",
                   "message": "The provided value is not a valid VRChat user ID."
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/default429"
+          }
+        }
+      }
+    },
+    "/vrchat/members": {
+      "get": {
+        "tags": [
+          "vrchat"
+        ],
+        "summary": "List group members with reputation",
+        "operationId": "get.vrchat.members",
+        "description": "Returns all members in the specified VRChat group from the local sync database, enriched with their reputation tallies. Results are sorted alphabetically by display name.\n\nRequires the `vrchat.members` permission scope on your token.\n\n> *\"Silvia compiled the member list. Sam reviewed it. Sam was on the list. Sam did not appreciate his own stats.\"*",
+        "parameters": [
+          {
+            "name": "group_id",
+            "in": "query",
+            "required": true,
+            "description": "VRChat group ID. Must match `grp_<id>`.",
+            "schema": {
+              "type": "string",
+              "example": "grp-silvia-and-sam"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Member list retrieved.",
+            "headers": {
+              "X-RateLimit-Limit": {
+                "$ref": "#/components/headers/X-RateLimit-Limit"
+              },
+              "X-RateLimit-Remaining": {
+                "$ref": "#/components/headers/X-RateLimit-Remaining"
+              },
+              "X-RateLimit-Reset": {
+                "$ref": "#/components/headers/X-RateLimit-Reset"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Members retrieved."
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "user_id": {
+                            "type": "string",
+                            "example": "usr_00000000-0000-0000-0000-000000000001"
+                          },
+                          "display_name": {
+                            "type": "string",
+                            "nullable": true,
+                            "example": "Silvia"
+                          },
+                          "membership_status": {
+                            "type": "string",
+                            "example": "moderator",
+                            "description": "member, moderator, inactive, banned, etc."
+                          },
+                          "joined_at": {
+                            "type": "string",
+                            "format": "date-time",
+                            "nullable": true,
+                            "example": "2026-01-01T00:00:00.000000Z"
+                          },
+                          "reputation": {
+                            "type": "object",
+                            "properties": {
+                              "instance_warns": {
+                                "type": "integer",
+                                "example": 0
+                              },
+                              "instance_kicks": {
+                                "type": "integer",
+                                "example": 0
+                              },
+                              "group_joins": {
+                                "type": "integer",
+                                "example": 3
+                              },
+                              "group_leaves": {
+                                "type": "integer",
+                                "example": 0
+                              },
+                              "group_kicks": {
+                                "type": "integer",
+                                "example": 0
+                              },
+                              "group_bans": {
+                                "type": "integer",
+                                "example": 0
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "success": true,
+                  "code": 200,
+                  "message": "Members retrieved.",
+                  "data": [
+                    {
+                      "user_id": "usr_00000000-0000-0000-0000-000000000002",
+                      "display_name": "Sam the Cat",
+                      "membership_status": "member",
+                      "joined_at": "2026-02-01T00:00:00.000000Z",
+                      "reputation": {
+                        "instance_warns": 1,
+                        "instance_kicks": 0,
+                        "group_joins": 2,
+                        "group_leaves": 0,
+                        "group_kicks": 0,
+                        "group_bans": 0
+                      }
+                    },
+                    {
+                      "user_id": "usr_00000000-0000-0000-0000-000000000001",
+                      "display_name": "Silvia the Cat",
+                      "membership_status": "moderator",
+                      "joined_at": "2026-01-01T00:00:00.000000Z",
+                      "reputation": {
+                        "instance_warns": 0,
+                        "instance_kicks": 0,
+                        "group_joins": 5,
+                        "group_leaves": 0,
+                        "group_kicks": 0,
+                        "group_bans": 0
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/default401"
+          },
+          "403": {
+            "description": "Missing `vrchat.members` permission scope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/response.error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Missing or invalid group_id.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/response.error"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/default429"
+          }
+        }
+      }
+    },
+    "/vrchat/kick": {
+      "post": {
+        "tags": [
+          "vrchat"
+        ],
+        "summary": "Kick a member from the group",
+        "operationId": "post.vrchat.kick",
+        "description": "Removes a member from the VRChat group using the server's authenticated VRChat account. The account must hold the **Remove Group Members** permission in the group. A kicked member can rejoin if the group is open.\n\nRequires the `vrchat.kick` permission scope on your token.\n\n> *\"Sam wrote the kick logic. Silvia reviewed it. She added an extra validation layer and a strongly-worded comment.\"*",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "group_id",
+                  "user_id"
+                ],
+                "properties": {
+                  "group_id": {
+                    "type": "string",
+                    "description": "VRChat group ID. Must match `grp_<id>`.",
+                    "example": "grp-silvia-and-sam"
+                  },
+                  "user_id": {
+                    "type": "string",
+                    "description": "VRChat user ID to kick. Must match `usr_<uuid>`.",
+                    "example": "usr_00000000-0000-0000-0000-000000000001"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Member kicked. Silvia watched from the doorstep.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "code": 200,
+                  "message": "Member kicked from group.",
+                  "data": {
+                    "kicked": true,
+                    "user_id": "usr_00000000-0000-0000-0000-000000000001",
+                    "group_id": "grp-silvia-and-sam"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/default401"
+          },
+          "403": {
+            "description": "Missing `vrchat.kick` scope or the VRChat account lacks the Remove Group Members permission.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/response.error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/response.error"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/default429"
+          },
+          "500": {
+            "description": "VRChat API failed to kick the member.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/response.error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vrchat/ban": {
+      "post": {
+        "tags": [
+          "vrchat"
+        ],
+        "summary": "Ban a member from the group",
+        "operationId": "post.vrchat.ban",
+        "description": "Bans a user from the VRChat group using the server's authenticated VRChat account. The account must have group ban permissions. A banned user cannot rejoin and will appear in the group's ban list.\n\nRequires the `vrchat.ban` permission scope on your token.\n\n> *\"Silvia personally reviews all ban requests. Sam types them in. Neither of them feels bad about it.\"*",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "group_id",
+                  "user_id"
+                ],
+                "properties": {
+                  "group_id": {
+                    "type": "string",
+                    "description": "VRChat group ID. Must match `grp_<id>`.",
+                    "example": "grp-silvia-and-sam"
+                  },
+                  "user_id": {
+                    "type": "string",
+                    "description": "VRChat user ID to ban. Must match `usr_<uuid>`.",
+                    "example": "usr_00000000-0000-0000-0000-000000000001"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Member banned. Silvia has updated her mental blocklist.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "code": 200,
+                  "message": "Member banned from group.",
+                  "data": {
+                    "banned": true,
+                    "user_id": "usr_00000000-0000-0000-0000-000000000001",
+                    "group_id": "grp-silvia-and-sam"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/default401"
+          },
+          "403": {
+            "description": "Missing `vrchat.ban` scope or the VRChat account lacks group ban permissions.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/response.error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/response.error"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/default429"
+          },
+          "500": {
+            "description": "VRChat API failed to ban the member.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/response.error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vrchat/announcements": {
+      "post": {
+        "tags": [
+          "vrchat"
+        ],
+        "summary": "Create a group announcement",
+        "operationId": "post.vrchat.announcements",
+        "description": "Posts a new announcement to the VRChat group using the server's authenticated VRChat account. The action is performed by the server's VRChat account — it must have the appropriate group admin role. Returns a 403 if the VRChat account lacks group permissions.\n\nRequires the `vrchat.announcement` permission scope on your token.\n\n> *\"Silvia dictates all announcements. Sam types them. Sam is not allowed to add cat puns without approval.\"*",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "group_id",
+                  "title"
+                ],
+                "properties": {
+                  "group_id": {
+                    "type": "string",
+                    "description": "VRChat group ID. Must match `grp_<id>`.",
+                    "example": "grp-silvia-and-sam"
+                  },
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 255,
+                    "description": "Announcement title.",
+                    "example": "Server maintenance tonight"
+                  },
+                  "text": {
+                    "type": "string",
+                    "nullable": true,
+                    "minLength": 1,
+                    "description": "Announcement body text.",
+                    "example": "Sam knocked the server off the shelf again. Back in 10 mins."
+                  },
+                  "send_notification": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Whether to notify group members.",
+                    "example": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Announcement created. Silvia approves.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Announcement created."
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "example": "ann_test-silvia-001"
+                        },
+                        "group_id": {
+                          "type": "string",
+                          "example": "grp-silvia-and-sam"
+                        },
+                        "title": {
+                          "type": "string",
+                          "example": "Server maintenance tonight"
+                        },
+                        "text": {
+                          "type": "string",
+                          "nullable": true,
+                          "example": "Sam knocked the server off the shelf again."
+                        },
+                        "created_at": {
+                          "type": "string",
+                          "format": "date-time",
+                          "nullable": true
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "success": true,
+                  "code": 200,
+                  "message": "Announcement created.",
+                  "data": {
+                    "id": "ann_test-silvia-001",
+                    "group_id": "grp-silvia-and-sam",
+                    "title": "Server maintenance tonight",
+                    "text": "Sam knocked the server off the shelf again. Back in 10 mins.",
+                    "created_at": "2026-05-16T12:00:00.000Z"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/default401"
+          },
+          "403": {
+            "description": "Missing `vrchat.announcement` permission scope, or the VRChat account lacks group admin rights.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/response.error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/response.error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "VRChat API rate limit reached.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/response.error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "VRChat API failed to create the announcement.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/response.error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vrchat/posts": {
+      "post": {
+        "tags": [
+          "vrchat"
+        ],
+        "summary": "Create a group post",
+        "operationId": "post.vrchat.posts",
+        "description": "Creates a new post on the VRChat group using the server's authenticated VRChat account. Supports group-only or public visibility. The VRChat account must have the appropriate group role.\n\nRequires the `vrchat.post` permission scope on your token.\n\n> *\"Sam once posted a meme as a group update. Silvia deleted it. We added a permission check after that.\"*",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "group_id",
+                  "title",
+                  "text",
+                  "visibility"
+                ],
+                "properties": {
+                  "group_id": {
+                    "type": "string",
+                    "description": "VRChat group ID. Must match `grp_<id>`.",
+                    "example": "grp-silvia-and-sam"
+                  },
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 255,
+                    "example": "Weekly Update"
+                  },
+                  "text": {
+                    "type": "string",
+                    "minLength": 1,
+                    "example": "Sam wrote the update. Silvia proofread it."
+                  },
+                  "visibility": {
+                    "type": "string",
+                    "enum": [
+                      "group",
+                      "public"
+                    ],
+                    "example": "group",
+                    "description": "Who can see the post."
+                  },
+                  "send_notification": {
+                    "type": "boolean",
+                    "default": false,
+                    "example": false
+                  },
+                  "role_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Restrict visibility to specific group roles.",
+                    "example": []
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Post created.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "code": 200,
+                  "message": "Post created.",
+                  "data": {
+                    "id": "ntf_post-silvia-001",
+                    "group_id": "grp-silvia-and-sam",
+                    "title": "Weekly Update",
+                    "text": "Sam wrote the update.",
+                    "visibility": "group",
+                    "created_at": "2026-05-16T13:00:00.000Z"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/default401"
+          },
+          "403": {
+            "description": "Missing `vrchat.post` permission scope, or the VRChat account lacks group posting rights.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/response.error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/response.error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "VRChat API rate limit reached.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/response.error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "VRChat API failed to create the post.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/response.error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vrchat/events": {
+      "post": {
+        "tags": [
+          "vrchat"
+        ],
+        "summary": "Create a group calendar event",
+        "operationId": "post.vrchat.events",
+        "description": "Schedules a new calendar event on the VRChat group using the server's authenticated VRChat account. The VRChat account must have the appropriate group role. VRChat enforces a limit of 100 events per group per month.\n\nRequires the `vrchat.event` permission scope on your token.\n\n> *\"Silvia scheduled a Cozy Cat Night. Sam scheduled a Gaming Marathon. They compromised: Cozy Gaming Night. Silvia knocked Sam's controller off the table 10 minutes in.\"*",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "group_id",
+                  "title",
+                  "description",
+                  "category",
+                  "starts_at",
+                  "ends_at",
+                  "access_type"
+                ],
+                "properties": {
+                  "group_id": {
+                    "type": "string",
+                    "description": "VRChat group ID. Must match `grp_<id>`.",
+                    "example": "grp-silvia-and-sam"
+                  },
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64,
+                    "example": "Sam's Cozy Hangout Night"
+                  },
+                  "description": {
+                    "type": "string",
+                    "minLength": 1,
+                    "example": "Join Sam and Silvia for a relaxed hangout. Toys will be knocked off tables."
+                  },
+                  "category": {
+                    "type": "string",
+                    "enum": [
+                      "arts",
+                      "avatars",
+                      "dance",
+                      "education",
+                      "exploration",
+                      "film_media",
+                      "gaming",
+                      "hangout",
+                      "music",
+                      "other",
+                      "performance",
+                      "roleplaying",
+                      "wellness"
+                    ],
+                    "example": "hangout"
+                  },
+                  "starts_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "Event start time (ISO 8601).",
+                    "example": "2026-06-01T20:00:00Z"
+                  },
+                  "ends_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "Event end time (ISO 8601). Must be after `starts_at`.",
+                    "example": "2026-06-01T22:00:00Z"
+                  },
+                  "access_type": {
+                    "type": "string",
+                    "enum": [
+                      "group",
+                      "public"
+                    ],
+                    "example": "group"
+                  },
+                  "send_creation_notification": {
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
+                  },
+                  "is_draft": {
+                    "type": "boolean",
+                    "default": false,
+                    "example": false
+                  },
+                  "featured": {
+                    "type": "boolean",
+                    "default": false,
+                    "example": false
+                  },
+                  "role_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Restrict the event to specific group roles.",
+                    "example": []
+                  },
+                  "tags": {
+                    "type": "array",
+                    "maxItems": 5,
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 100
+                    },
+                    "example": [
+                      "cozy",
+                      "cat"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Calendar event created. Silvia has already added it to her nap schedule.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "code": 200,
+                  "message": "Calendar event created.",
+                  "data": {
+                    "id": "cal_event-silvia-001",
+                    "group_id": "grp-silvia-and-sam",
+                    "title": "Sam's Cozy Hangout Night",
+                    "description": "Join Sam and Silvia for a relaxed hangout.",
+                    "category": "hangout",
+                    "starts_at": "2026-06-01T20:00:00.000Z",
+                    "ends_at": "2026-06-01T22:00:00.000Z",
+                    "access_type": "group",
+                    "is_draft": false,
+                    "featured": false,
+                    "created_at": "2026-05-16T14:00:00.000Z"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/default401"
+          },
+          "403": {
+            "description": "Missing `vrchat.event` permission scope, or the VRChat account lacks group event-creation rights.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/response.error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation failed — check field formats and that `ends_at` is after `starts_at`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/response.error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "VRChat API rate limit reached (max 100 events/month per group).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/response.error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "VRChat API failed to create the event.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/response.error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vrchat/reputation/{userId}": {
+      "get": {
+        "tags": [
+          "vrchat"
+        ],
+        "summary": "Look up a VRChat member's reputation and group status",
+        "operationId": "get.vrchat.reputation",
+        "description": "Returns the group membership status and aggregated reputation tallies for a VRChat user in a given group. Membership data comes from the internal sync (join/leave/ban history), reputation from tracked audit log events.\n\nRequires the `vrchat.reputation` permission scope on your token.\n\n> *\"Silvia built the reputation system after Sam kept claiming he'd 'never been warned'. He had been warned four times. The logs don't lie.\"*",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "description": "The VRChat user ID to look up. Must match the format `usr_<uuid>`.",
+            "schema": {
+              "type": "string",
+              "example": "usr_00000000-0000-0000-0000-000000000001"
+            }
+          },
+          {
+            "name": "group_id",
+            "in": "query",
+            "required": true,
+            "description": "The VRChat group ID to scope the reputation lookup to. Must match `grp_<id>` format.",
+            "schema": {
+              "type": "string",
+              "example": "grp_silvia-and-sam"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Reputation retrieved. Silvia printed a copy. Sam looked away.",
+            "headers": {
+              "X-RateLimit-Limit": {
+                "$ref": "#/components/headers/X-RateLimit-Limit"
+              },
+              "X-RateLimit-Remaining": {
+                "$ref": "#/components/headers/X-RateLimit-Remaining"
+              },
+              "X-RateLimit-Reset": {
+                "$ref": "#/components/headers/X-RateLimit-Reset"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Reputation retrieved."
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "user_id": {
+                          "type": "string",
+                          "example": "usr_00000000-0000-0000-0000-000000000001"
+                        },
+                        "group_id": {
+                          "type": "string",
+                          "example": "grp-silvia-and-sam"
+                        },
+                        "display_name": {
+                          "type": "string",
+                          "nullable": true,
+                          "example": "Silvia"
+                        },
+                        "membership": {
+                          "nullable": true,
+                          "description": "`null` if no membership record exists for this user in the group.",
+                          "type": "object",
+                          "properties": {
+                            "status": {
+                              "type": "string",
+                              "example": "moderator",
+                              "description": "Current membership status: `member`, `moderator`, `inactive`, `banned`, etc."
+                            },
+                            "joined_at": {
+                              "type": "string",
+                              "format": "date-time",
+                              "nullable": true,
+                              "example": "2026-01-01T00:00:00.000000Z"
+                            },
+                            "left_at": {
+                              "type": "string",
+                              "format": "date-time",
+                              "nullable": true,
+                              "example": null
+                            },
+                            "banned_at": {
+                              "type": "string",
+                              "format": "date-time",
+                              "nullable": true,
+                              "example": null
+                            }
+                          }
+                        },
+                        "reputation": {
+                          "nullable": true,
+                          "description": "`null` if no audit events have been tracked for this user in the group.",
+                          "type": "object",
+                          "properties": {
+                            "invites": {
+                              "type": "integer",
+                              "example": 3
+                            },
+                            "group_joins": {
+                              "type": "integer",
+                              "example": 3
+                            },
+                            "group_leaves": {
+                              "type": "integer",
+                              "example": 0
+                            },
+                            "instance_warns": {
+                              "type": "integer",
+                              "example": 0
+                            },
+                            "instance_kicks": {
+                              "type": "integer",
+                              "example": 0
+                            },
+                            "group_kicks": {
+                              "type": "integer",
+                              "example": 0
+                            },
+                            "group_bans": {
+                              "type": "integer",
+                              "example": 0
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "success": true,
+                  "code": 200,
+                  "message": "Reputation retrieved.",
+                  "data": {
+                    "user_id": "usr_00000000-0000-0000-0000-000000000001",
+                    "group_id": "grp-silvia-and-sam",
+                    "display_name": "Silvia",
+                    "membership": {
+                      "status": "moderator",
+                      "joined_at": "2026-01-01T00:00:00.000000Z",
+                      "left_at": null,
+                      "banned_at": null
+                    },
+                    "reputation": {
+                      "invites": 3,
+                      "group_joins": 3,
+                      "group_leaves": 0,
+                      "instance_warns": 0,
+                      "instance_kicks": 0,
+                      "group_kicks": 0,
+                      "group_bans": 0
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/default401"
+          },
+          "403": {
+            "description": "Missing `vrchat.reputation` permission scope on your token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/response.error"
+                },
+                "example": {
+                  "success": false,
+                  "code": 403,
+                  "data": "",
+                  "message": "You do not have permission to view VRChat reputation."
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No membership or reputation data found for this user in the specified group. They're a ghost — Silvia checked.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/response.error"
+                },
+                "example": {
+                  "success": false,
+                  "code": 404,
+                  "data": "",
+                  "message": "No data found for this user in the specified group."
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid user ID or missing/invalid group_id. Sam flagged it.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/response.error"
+                },
+                "example": {
+                  "success": false,
+                  "code": 422,
+                  "data": "",
+                  "message": "A valid group_id query parameter is required."
                 }
               }
             }
