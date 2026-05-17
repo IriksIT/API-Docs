@@ -14,7 +14,7 @@
       "backgroundColor": "#FFFFFF",
       "altText": "Iriks-IT Logo"
     },
-    "version": "1.26.0"
+    "version": "1.27.0"
   },
   "externalDocs": {
     "description": "Find out more about Iriks-IT",
@@ -1356,6 +1356,42 @@
                               "example": null
                             }
                           }
+                        },
+                        "reputation": {
+                          "type": "object",
+                          "description": "Reputation counters for this user within the requested group. All fields default to `0` if no reputation record exists. Sam has a suspiciously high `instance_kicks` count.",
+                          "properties": {
+                            "instance_warns": {
+                              "type": "integer",
+                              "example": 0,
+                              "description": "Number of times the user has been warned in a group instance."
+                            },
+                            "instance_kicks": {
+                              "type": "integer",
+                              "example": 1,
+                              "description": "Number of times the user has been kicked from a group instance."
+                            },
+                            "group_joins": {
+                              "type": "integer",
+                              "example": 5,
+                              "description": "Number of times the user has joined the group."
+                            },
+                            "group_leaves": {
+                              "type": "integer",
+                              "example": 2,
+                              "description": "Number of times the user has left the group."
+                            },
+                            "group_kicks": {
+                              "type": "integer",
+                              "example": 0,
+                              "description": "Number of times the user has been kicked from the group."
+                            },
+                            "group_bans": {
+                              "type": "integer",
+                              "example": 0,
+                              "description": "Number of times the user has been banned from the group."
+                            }
+                          }
                         }
                       }
                     }
@@ -1390,6 +1426,14 @@
                       "joined_at": "2026-01-01T00:00:00.000000Z",
                       "left_at": null,
                       "banned_at": null
+                    },
+                    "reputation": {
+                      "instance_warns": 0,
+                      "instance_kicks": 1,
+                      "group_joins": 5,
+                      "group_leaves": 2,
+                      "group_kicks": 0,
+                      "group_bans": 0
                     }
                   },
                   "message": "VRChat user retrieved."
