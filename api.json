@@ -14,7 +14,7 @@
       "backgroundColor": "#FFFFFF",
       "altText": "Iriks-IT Logo"
     },
-    "version": "1.28.0"
+    "version": "1.29.0"
   },
   "externalDocs": {
     "description": "Find out more about Iriks-IT",
@@ -1728,6 +1728,311 @@
           },
           "422": {
             "description": "Missing or invalid group_id.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/response.error"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/default429"
+          }
+        }
+      }
+    },
+    "/vrchat/members/{userId}/note": {
+      "post": {
+        "tags": [
+          "vrchat"
+        ],
+        "summary": "Create or update a moderator note for a member",
+        "operationId": "post.vrchat.note",
+        "description": "Creates or replaces the moderator note for the given member within the specified group. There is exactly one note per member per group — calling this endpoint again overwrites the previous note and updates `updated_at`.\n\nRequires the `vrchat.note` permission scope on your token.\n\n> *\"Silvia wrote the first note. It just said 'watched'. Sam's note has three paragraphs about the shelf incident.\"*",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "description": "VRChat user ID (`usr_` prefix).",
+            "schema": {
+              "type": "string",
+              "example": "usr_00000000-0000-0000-0000-000000000001"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "group_id",
+                  "note",
+                  "moderator_name"
+                ],
+                "properties": {
+                  "group_id": {
+                    "type": "string",
+                    "example": "grp_00000000-0000-0000-0000-000000000001",
+                    "description": "VRChat group ID (`grp_` prefix)."
+                  },
+                  "note": {
+                    "type": "string",
+                    "maxLength": 2000,
+                    "example": "Tends to knock things off shelves during events. Keep her away from the merch table."
+                  },
+                  "moderator_name": {
+                    "type": "string",
+                    "maxLength": 255,
+                    "example": "Sam the Mod",
+                    "description": "Display name of the moderator writing the note."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Note saved (created or updated).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/response.success"
+                },
+                "example": {
+                  "success": true,
+                  "code": 200,
+                  "message": "Group note saved.",
+                  "data": {
+                    "user_id": "usr_00000000-0000-0000-0000-000000000001",
+                    "group_id": "grp_00000000-0000-0000-0000-000000000001",
+                    "note": "Tends to knock things off shelves during events. Keep her away from the merch table.",
+                    "moderator_name": "Sam the Mod",
+                    "updated_at": "2026-05-18T12:00:00.000000Z"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/default401"
+          },
+          "403": {
+            "description": "Missing `vrchat.note` permission scope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/response.error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error — invalid user ID format, missing or invalid group_id, empty note or moderator name.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/response.error"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/default429"
+          }
+        }
+      }
+    },
+    "/vrchat/members/{userId}/warnings": {
+      "post": {
+        "tags": [
+          "vrchat"
+        ],
+        "summary": "Add a warning to a member",
+        "operationId": "post.vrchat.warning",
+        "description": "Appends a new warning record for the given member within the specified group. Members can accumulate multiple warnings — each call creates a new entry.\n\nRequires the `vrchat.warning` permission scope on your token.\n\n> *\"Sam has issued one warning. Silvia has issued seventeen. We don't talk about the great shelf incident of 2026.\"*",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "description": "VRChat user ID (`usr_` prefix).",
+            "schema": {
+              "type": "string",
+              "example": "usr_00000000-0000-0000-0000-000000000001"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "group_id",
+                  "title",
+                  "description",
+                  "moderator_name"
+                ],
+                "properties": {
+                  "group_id": {
+                    "type": "string",
+                    "example": "grp_00000000-0000-0000-0000-000000000001",
+                    "description": "VRChat group ID (`grp_` prefix)."
+                  },
+                  "title": {
+                    "type": "string",
+                    "maxLength": 255,
+                    "example": "Shelf Incident #1"
+                  },
+                  "description": {
+                    "type": "string",
+                    "maxLength": 2000,
+                    "example": "Pushed three mugs off the table during the cat café event."
+                  },
+                  "moderator_name": {
+                    "type": "string",
+                    "maxLength": 255,
+                    "example": "Sam the Mod",
+                    "description": "Display name of the moderator issuing the warning."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Warning created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/response.success"
+                },
+                "example": {
+                  "success": true,
+                  "code": 200,
+                  "message": "Group warning created.",
+                  "data": {
+                    "id": 1,
+                    "user_id": "usr_00000000-0000-0000-0000-000000000001",
+                    "group_id": "grp_00000000-0000-0000-0000-000000000001",
+                    "title": "Shelf Incident #1",
+                    "description": "Pushed three mugs off the table during the cat café event.",
+                    "moderator_name": "Sam the Mod",
+                    "created_at": "2026-05-18T12:00:00.000000Z"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/default401"
+          },
+          "403": {
+            "description": "Missing `vrchat.warning` permission scope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/response.error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error — invalid user ID format, missing or invalid group_id, empty title, description, or moderator name.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/response.error"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/default429"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "vrchat"
+        ],
+        "summary": "Delete a warning from a member",
+        "operationId": "delete.vrchat.warning",
+        "description": "Permanently removes a specific warning from a member's record. The warning is identified by its `id` (returned when it was created) and scoped to the `userId` path parameter.\n\nRequires the `vrchat.warning` permission scope on your token.\n\n> *\"Silvia approved the delete endpoint. She insisted on the 404 for cross-user attempts. Sam's warnings remain.\"*",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "description": "VRChat user ID (`usr_` prefix).",
+            "schema": {
+              "type": "string",
+              "example": "usr_00000000-0000-0000-0000-000000000001"
+            }
+          },
+          {
+            "name": "warningId",
+            "in": "path",
+            "required": true,
+            "description": "The numeric ID of the warning to delete.",
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Warning deleted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/response.success"
+                },
+                "example": {
+                  "success": true,
+                  "code": 200,
+                  "message": "Group warning deleted.",
+                  "data": {
+                    "id": 1,
+                    "user_id": "usr_00000000-0000-0000-0000-000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/default401"
+          },
+          "403": {
+            "description": "Missing `vrchat.warning` permission scope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/response.error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Warning not found, or belongs to a different user.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/response.error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid user ID format.",
             "content": {
               "application/json": {
                 "schema": {
