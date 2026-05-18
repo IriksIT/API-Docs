@@ -14,7 +14,7 @@
       "backgroundColor": "#FFFFFF",
       "altText": "Iriks-IT Logo"
     },
-    "version": "1.27.2"
+    "version": "1.28.0"
   },
   "externalDocs": {
     "description": "Find out more about Iriks-IT",
@@ -1357,6 +1357,59 @@
                             }
                           }
                         },
+                        "group_note": {
+                          "nullable": true,
+                          "description": "A moderator note about this member within the requested group, or `null` if no note has been written. Sam's note probably says 'watch the shelves'.",
+                          "type": "object",
+                          "properties": {
+                            "note": {
+                              "type": "string",
+                              "example": "Silvia tends to knock things off shelves during events. Keep her away from the merch table."
+                            },
+                            "moderator_name": {
+                              "type": "string",
+                              "example": "Sam the Mod",
+                              "description": "Display name of the moderator who wrote the note."
+                            },
+                            "updated_at": {
+                              "type": "string",
+                              "format": "date-time",
+                              "nullable": true,
+                              "example": "2026-05-01T12:00:00.000000Z"
+                            }
+                          }
+                        },
+                        "group_warnings": {
+                          "type": "array",
+                          "description": "List of warnings issued to this member within the requested group, ordered oldest-first. Empty array if none. (Silvia has two. They're both shelf-related.)",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "integer",
+                                "example": 1
+                              },
+                              "title": {
+                                "type": "string",
+                                "example": "Shelf Incident #1"
+                              },
+                              "description": {
+                                "type": "string",
+                                "example": "Pushed three mugs off the table during the cat café event."
+                              },
+                              "moderator_name": {
+                                "type": "string",
+                                "example": "Sam the Mod",
+                                "description": "Display name of the moderator who issued the warning."
+                              },
+                              "created_at": {
+                                "type": "string",
+                                "format": "date-time",
+                                "example": "2026-04-15T18:30:00.000000Z"
+                              }
+                            }
+                          }
+                        },
                         "reputation": {
                           "type": "object",
                           "description": "Reputation counters for this user within the requested group. All fields default to `0` if no reputation record exists. Sam has a suspiciously high `instance_kicks` count.",
@@ -1427,6 +1480,20 @@
                       "left_at": null,
                       "banned_at": null
                     },
+                    "group_note": {
+                      "note": "Silvia tends to knock things off shelves during events. Keep her away from the merch table.",
+                      "moderator_name": "Sam the Mod",
+                      "updated_at": "2026-05-01T12:00:00.000000Z"
+                    },
+                    "group_warnings": [
+                      {
+                        "id": 1,
+                        "title": "Shelf Incident #1",
+                        "description": "Pushed three mugs off the table during the cat café event.",
+                        "moderator_name": "Sam the Mod",
+                        "created_at": "2026-04-15T18:30:00.000000Z"
+                      }
+                    ],
                     "reputation": {
                       "instance_warns": 0,
                       "instance_kicks": 1,
