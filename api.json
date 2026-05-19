@@ -14,7 +14,7 @@
       "backgroundColor": "#FFFFFF",
       "altText": "Iriks-IT Logo"
     },
-    "version": "1.30.0"
+    "version": "1.31.2"
   },
   "externalDocs": {
     "description": "Find out more about Iriks-IT",
@@ -66,7 +66,7 @@
     },
     {
       "name": "vrchat-images",
-      "description": "VRChat file/image management. Upload once, reference by `image_id` when creating posts."
+      "description": "VRChat group media gallery management. Images are scoped to a group's Media Uploads gallery, created automatically on first use. Upload, list, inspect, and remove images per group. Reference the `image_id` when creating posts. Sam once uploaded 47 cat photos before Silvia noticed the gallery existed."
     }
   ],
   "paths": {
@@ -2250,14 +2250,24 @@
         "tags": [
           "vrchat-images"
         ],
-        "summary": "List uploaded images",
+        "summary": "List images in the group media gallery",
         "operationId": "get.vrchat.images",
-        "description": "Returns a paginated list of images previously uploaded to VRChat by the authenticated VRChat account. Use `n` and `offset` to paginate.\n\nRequires the `vrchat.post` permission scope.\n\n> *\"Silvia reviewed the gallery. Sam's uploads were sorted to the bottom.\"*",
+        "description": "Returns a paginated list of images from the group's Media Uploads gallery. The gallery is resolved (or created) automatically.\n\nRequires the `vrchat.post` permission scope.\n\n> *\"Silvia reviewed the gallery. Sam had named every file 'cat.png'. There were 47 of them.\"*",
         "parameters": [
+          {
+            "name": "group_id",
+            "in": "query",
+            "required": true,
+            "description": "VRChat group ID whose Media Uploads gallery to list.",
+            "schema": {
+              "type": "string",
+              "example": "grp_silvia-and-sam"
+            }
+          },
           {
             "name": "n",
             "in": "query",
-            "description": "Number of results to return (1â€“100, default 50).",
+            "description": "Number of results to return (1-100, default 50).",
             "schema": {
               "type": "integer",
               "minimum": 1,
@@ -2278,7 +2288,7 @@
         ],
         "responses": {
           "200": {
-            "description": "List of uploaded files.",
+            "description": "List of gallery images.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2287,16 +2297,15 @@
                 "example": {
                   "success": true,
                   "code": 200,
-                  "message": "Files retrieved.",
+                  "message": "Images retrieved.",
                   "data": [
                     {
+                      "gallery_image_id": "gimg_silvia-shelf-001",
                       "image_id": "file_ce35d830-e20a-4df0-a6d4-5aaef4508044",
+                      "image_url": "https://api.vrchat.cloud/api/1/file/file_ce35d830-e20a-4df0-a6d4-5aaef4508044/1/file",
                       "name": "silvia-on-shelf.png",
-                      "mime_type": "image/png",
-                      "tags": [
-                        "gallery"
-                      ],
-                      "url": "https://api.vrchat.cloud/api/1/file/file_ce35d830-e20a-4df0-a6d4-5aaef4508044/1/file",
+                      "description": "",
+                      "submitted_by": "usr_silvia-001",
                       "created_at": "2026-05-01T10:00:00.000Z"
                     }
                   ]
@@ -2308,73 +2317,7 @@
             "$ref": "#/components/responses/default401"
           },
           "403": {
-            "description": "Missing `vrchat.post` permission scope.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/response.error"
-                }
-              }
-            }
-          },
-          "429": {
-            "$ref": "#/components/responses/default429"
-          }
-        }
-      }
-    },
-    "/vrchat/image": {
-      "post": {
-        "tags": [
-          "vrchat-images"
-        ],
-        "summary": "Upload an image for use in group posts",
-        "operationId": "post.vrchat.image",
-        "description": "Uploads a PNG or JPEG image to VRChat and returns the resulting `image_id` (`file_xxx`). Pass that ID as `image_id` when creating a post via `POST /vrchat/posts`.\n\nRequires the `vrchat.post` permission scope on your token.\n\n> *\"Silvia submitted a photo of herself on the merch table. Sam uploaded it as the group banner. We have no regrets.\"*",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "multipart/form-data": {
-              "schema": {
-                "type": "object",
-                "required": [
-                  "file"
-                ],
-                "properties": {
-                  "file": {
-                    "type": "string",
-                    "format": "binary",
-                    "description": "PNG or JPEG image, max 10 MB."
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Image uploaded. Use the returned `image_id` in `POST /vrchat/posts`.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/response.success"
-                },
-                "example": {
-                  "success": true,
-                  "code": 200,
-                  "message": "Image uploaded.",
-                  "data": {
-                    "image_id": "file_ce35d830-e20a-4df0-a6d4-5aaef4508044"
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/default401"
-          },
-          "403": {
-            "description": "Missing `vrchat.post` permission scope, or the VRChat account cannot upload files.",
+            "description": "Missing `vrchat.post` permission scope, or the VRChat account cannot access the gallery.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2384,7 +2327,7 @@
             }
           },
           "422": {
-            "description": "No file provided, wrong MIME type, or file exceeds 10 MB.",
+            "description": "`group_id` is missing.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2397,7 +2340,100 @@
             "$ref": "#/components/responses/default429"
           },
           "500": {
-            "description": "VRChat API failed to accept the upload.",
+            "description": "Gallery could not be resolved or the VRChat API returned an error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/response.error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vrchat/image": {
+      "post": {
+        "tags": [
+          "vrchat-images"
+        ],
+        "summary": "Upload an image to the group media gallery",
+        "operationId": "post.vrchat.image",
+        "description": "Uploads a PNG or JPEG image to VRChat and adds it to the group's Media Uploads gallery (created automatically if it doesn't exist yet). Returns both the `image_id` for use in posts and the `gallery_image_id` needed to delete the image later.\n\nRequires the `vrchat.post` permission scope on your token.\n\n> *\"Silvia submitted a photo of herself on the merch table. Sam uploaded it as the group banner. The gallery auto-created itself. We have no regrets.\"*",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "group_id",
+                  "file"
+                ],
+                "properties": {
+                  "group_id": {
+                    "type": "string",
+                    "description": "VRChat group ID to upload the image into.",
+                    "example": "grp_silvia-and-sam"
+                  },
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "PNG or JPEG image, max 10 MB."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Image uploaded and added to the group gallery. Use `image_id` in `POST /vrchat/posts`. Store `gallery_image_id` to delete the image later.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/response.success"
+                },
+                "example": {
+                  "success": true,
+                  "code": 200,
+                  "message": "Image uploaded.",
+                  "data": {
+                    "image_id": "file_ce35d830-e20a-4df0-a6d4-5aaef4508044",
+                    "gallery_image_id": "gimg_silvia-shelf-001"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/default401"
+          },
+          "403": {
+            "description": "Missing `vrchat.post` permission scope, or the VRChat account cannot upload files or manage the gallery.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/response.error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "`group_id` missing, no file provided, wrong MIME type, or file exceeds 10 MB.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/response.error"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/default429"
+          },
+          "500": {
+            "description": "VRChat API failed to accept the upload, resolve the gallery, or add the image to the gallery.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2497,9 +2533,9 @@
         "tags": [
           "vrchat-images"
         ],
-        "summary": "Delete an uploaded image",
+        "summary": "Remove an image from the group gallery and delete the file",
         "operationId": "delete.vrchat.image",
-        "description": "Permanently deletes an uploaded VRChat file. Make sure no posts are still referencing the image before deleting.\n\nRequires the `vrchat.post` permission scope.\n\n> *\"Sam deleted the wrong image. Silvia had three back-ups. Sam did not.\"*",
+        "description": "Removes the image from the group's Media Uploads gallery and permanently deletes the underlying VRChat file. Both the `group_id` and the `gallery_image_id` (returned by `POST /vrchat/image`) are required. Make sure no posts are still referencing the image before deleting.\n\nRequires the `vrchat.post` permission scope.\n\n> *\"Sam deleted the wrong image. Silvia had three back-ups. Sam did not. The gallery still remembers.\"*",
         "parameters": [
           {
             "name": "fileId",
@@ -2510,11 +2546,31 @@
               "type": "string",
               "example": "file_ce35d830-e20a-4df0-a6d4-5aaef4508044"
             }
+          },
+          {
+            "name": "group_id",
+            "in": "query",
+            "required": true,
+            "description": "VRChat group ID the image belongs to.",
+            "schema": {
+              "type": "string",
+              "example": "grp_silvia-and-sam"
+            }
+          },
+          {
+            "name": "gallery_image_id",
+            "in": "query",
+            "required": true,
+            "description": "Gallery image ID (`gimg_` prefix) returned by `POST /vrchat/image` or `GET /vrchat/images`.",
+            "schema": {
+              "type": "string",
+              "example": "gimg_silvia-shelf-001"
+            }
           }
         ],
         "responses": {
           "200": {
-            "description": "File deleted.",
+            "description": "Image removed from gallery and file deleted.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2525,7 +2581,8 @@
                   "code": 200,
                   "message": "File deleted.",
                   "data": {
-                    "image_id": "file_ce35d830-e20a-4df0-a6d4-5aaef4508044"
+                    "image_id": "file_ce35d830-e20a-4df0-a6d4-5aaef4508044",
+                    "gallery_image_id": "gimg_silvia-shelf-001"
                   }
                 }
               }
@@ -2535,7 +2592,7 @@
             "$ref": "#/components/responses/default401"
           },
           "403": {
-            "description": "Missing `vrchat.post` permission scope.",
+            "description": "Missing `vrchat.post` permission scope, or the VRChat account cannot remove images from the gallery or delete the file.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2555,7 +2612,7 @@
             }
           },
           "422": {
-            "description": "Invalid file ID format.",
+            "description": "Invalid file ID format, or `group_id` / `gallery_image_id` missing.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2566,6 +2623,16 @@
           },
           "429": {
             "$ref": "#/components/responses/default429"
+          },
+          "500": {
+            "description": "Gallery could not be resolved.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/response.error"
+                }
+              }
+            }
           }
         }
       }
