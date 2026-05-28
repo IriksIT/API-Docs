@@ -14,7 +14,7 @@
       "backgroundColor": "#FFFFFF",
       "altText": "Iriks-IT Logo"
     },
-    "version": "1.31.10"
+    "version": "1.32.0"
   },
   "externalDocs": {
     "description": "Find out more about Iriks-IT",
@@ -67,6 +67,10 @@
     {
       "name": "vrchat-images",
       "description": "VRChat group media gallery management. Images are scoped to a group's Media Uploads gallery, created automatically on first use. Upload, list, inspect, and remove images per group. Reference the `image_id` when creating posts. Sam once uploaded 47 cat photos before Silvia noticed the gallery existed."
+    },
+    {
+      "name": "incidents",
+      "description": "Historic incident log from Atlassian statuspage and Cronitor monitoring sources. Independent of notification providers — whether or not Silvia triggered a Discord alert, every incident lands here."
     }
   ],
   "paths": {
@@ -3197,6 +3201,667 @@
             "$ref": "#/components/responses/default429"
           }
         }
+      }
+    },
+    "/incidents": {
+      "get": {
+        "tags": [
+          "incidents"
+        ],
+        "summary": "List all incidents",
+        "operationId": "get.incidents.index",
+        "description": "Returns a paginated list of all historic incidents from both Atlassian statuspage and Cronitor sources. Sorted by start time, newest first. Silvia and Sam both have their own status pages. This endpoint purrs with all of them.",
+        "parameters": [
+          {
+            "name": "source_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "statuspage",
+                "cronitor"
+              ]
+            },
+            "description": "Filter by source type. Omit for both."
+          },
+          {
+            "name": "resolved",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            },
+            "description": "Filter by resolved status. true = only resolved, false = only active."
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            },
+            "description": "Items per page (max 100)."
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            },
+            "description": "Page number."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Incidents retrieved successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "integer",
+                                "example": 1
+                              },
+                              "source_type": {
+                                "type": "string",
+                                "enum": [
+                                  "statuspage",
+                                  "cronitor"
+                                ],
+                                "example": "statuspage"
+                              },
+                              "source_name": {
+                                "type": "string",
+                                "nullable": true,
+                                "example": "Silvia Status Page"
+                              },
+                              "name": {
+                                "type": "string",
+                                "example": "Silvia knocked over the server again"
+                              },
+                              "status": {
+                                "type": "string",
+                                "example": "investigating"
+                              },
+                              "impact": {
+                                "type": "string",
+                                "nullable": true,
+                                "example": "major"
+                              },
+                              "severity": {
+                                "type": "string",
+                                "nullable": true,
+                                "example": "major_outage"
+                              },
+                              "url": {
+                                "type": "string",
+                                "nullable": true,
+                                "example": "https://stspg.io/purr123"
+                              },
+                              "started_at": {
+                                "type": "string",
+                                "format": "date-time",
+                                "example": "2026-05-28T10:00:00.000000Z"
+                              },
+                              "resolved_at": {
+                                "type": "string",
+                                "format": "date-time",
+                                "nullable": true,
+                                "example": null
+                              },
+                              "updates_count": {
+                                "type": "integer",
+                                "example": 3
+                              }
+                            }
+                          }
+                        },
+                        "current_page": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "per_page": {
+                          "type": "integer",
+                          "example": 25
+                        },
+                        "total": {
+                          "type": "integer",
+                          "example": 42
+                        },
+                        "last_page": {
+                          "type": "integer",
+                          "example": 2
+                        },
+                        "from": {
+                          "type": "integer",
+                          "nullable": true,
+                          "example": 1
+                        },
+                        "to": {
+                          "type": "integer",
+                          "nullable": true,
+                          "example": 25
+                        }
+                      }
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Incidents retrieved."
+                    }
+                  }
+                },
+                "example": {
+                  "success": true,
+                  "code": 200,
+                  "data": {
+                    "data": [
+                      {
+                        "id": 2,
+                        "source_type": "cronitor",
+                        "source_name": "Sam Monitor",
+                        "name": "Sam sat on the keyboard and triggered a full deploy",
+                        "status": "resolved",
+                        "impact": null,
+                        "severity": "major_outage",
+                        "url": "https://status.sam-the-cat.nl/incidents/inc_001",
+                        "started_at": "2026-05-28T09:00:00.000000Z",
+                        "resolved_at": "2026-05-28T10:30:00.000000Z",
+                        "updates_count": 2
+                      },
+                      {
+                        "id": 1,
+                        "source_type": "statuspage",
+                        "source_name": "Silvia Status Page",
+                        "name": "Silvia knocked over the server (again)",
+                        "status": "investigating",
+                        "impact": "major",
+                        "severity": null,
+                        "url": "https://stspg.io/purr123",
+                        "started_at": "2026-05-28T08:00:00.000000Z",
+                        "resolved_at": null,
+                        "updates_count": 3
+                      }
+                    ],
+                    "current_page": 1,
+                    "per_page": 25,
+                    "total": 2,
+                    "last_page": 1,
+                    "from": 1,
+                    "to": 2
+                  },
+                  "message": "Incidents retrieved."
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/default429"
+          }
+        },
+        "security": []
+      }
+    },
+    "/incidents/sources": {
+      "get": {
+        "tags": [
+          "incidents"
+        ],
+        "summary": "List incident sources",
+        "operationId": "get.incidents.sources",
+        "description": "Returns all configured incident sources (Atlassian statuspage and Cronitor), with their name, URL, and whether they currently have an ongoing incident. Silvia and Sam each have their own status page — this endpoint tells you if either of them is currently causing chaos.",
+        "responses": {
+          "200": {
+            "description": "Sources retrieved successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "source_type": {
+                            "type": "string",
+                            "enum": [
+                              "statuspage",
+                              "cronitor"
+                            ],
+                            "example": "statuspage"
+                          },
+                          "name": {
+                            "type": "string",
+                            "example": "Silvia Status Page"
+                          },
+                          "url": {
+                            "type": "string",
+                            "nullable": true,
+                            "example": "https://status.silvia-the-cat.nl"
+                          },
+                          "has_ongoing_incident": {
+                            "type": "boolean",
+                            "example": true,
+                            "description": "True if the source has at least one unresolved incident."
+                          }
+                        }
+                      }
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Sources retrieved."
+                    }
+                  }
+                },
+                "example": {
+                  "success": true,
+                  "code": 200,
+                  "data": [
+                    {
+                      "source_type": "cronitor",
+                      "name": "Sam Monitor",
+                      "url": "https://status.sam-the-cat.nl",
+                      "has_ongoing_incident": false
+                    },
+                    {
+                      "source_type": "statuspage",
+                      "name": "Silvia Status Page",
+                      "url": "https://status.silvia-the-cat.nl",
+                      "has_ongoing_incident": true
+                    }
+                  ],
+                  "message": "Sources retrieved."
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/default429"
+          }
+        },
+        "security": []
+      }
+    },
+    "/incidents/statuspage/{id}": {
+      "get": {
+        "tags": [
+          "incidents"
+        ],
+        "summary": "Get a Statuspage incident",
+        "operationId": "get.incidents.statuspage.show",
+        "description": "Returns a single Atlassian Statuspage incident with all its updates. Great for fetching the full timeline of why Silvia's server room adventures caused chaos.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "The internal incident ID."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Incident retrieved successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "source_type": {
+                          "type": "string",
+                          "example": "statuspage"
+                        },
+                        "source_name": {
+                          "type": "string",
+                          "nullable": true,
+                          "example": "Silvia Status Page"
+                        },
+                        "source_page_url": {
+                          "type": "string",
+                          "nullable": true,
+                          "example": "https://status.silvia-the-cat.nl"
+                        },
+                        "name": {
+                          "type": "string",
+                          "example": "Silvia knocked over the server"
+                        },
+                        "status": {
+                          "type": "string",
+                          "example": "resolved"
+                        },
+                        "impact": {
+                          "type": "string",
+                          "nullable": true,
+                          "example": "major"
+                        },
+                        "url": {
+                          "type": "string",
+                          "nullable": true,
+                          "example": "https://stspg.io/purr123"
+                        },
+                        "started_at": {
+                          "type": "string",
+                          "format": "date-time",
+                          "example": "2026-05-28T08:00:00.000000Z"
+                        },
+                        "resolved_at": {
+                          "type": "string",
+                          "format": "date-time",
+                          "nullable": true,
+                          "example": "2026-05-28T10:30:00.000000Z"
+                        },
+                        "updates": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "integer",
+                                "example": 1
+                              },
+                              "status": {
+                                "type": "string",
+                                "nullable": true,
+                                "example": "investigating"
+                              },
+                              "body": {
+                                "type": "string",
+                                "nullable": true,
+                                "example": "Our team is investigating the issue. Silvia has been removed from the server room."
+                              },
+                              "displayed_at": {
+                                "type": "string",
+                                "format": "date-time",
+                                "nullable": true,
+                                "example": "2026-05-28T10:05:00.000000Z"
+                              },
+                              "created_at": {
+                                "type": "string",
+                                "format": "date-time",
+                                "example": "2026-05-28T10:05:00.000000Z"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Incident retrieved."
+                    }
+                  }
+                },
+                "example": {
+                  "success": true,
+                  "code": 200,
+                  "data": {
+                    "id": 1,
+                    "source_type": "statuspage",
+                    "source_name": "Silvia Status Page",
+                    "source_page_url": "https://status.silvia-the-cat.nl",
+                    "name": "Silvia knocked over the server",
+                    "status": "resolved",
+                    "impact": "major",
+                    "url": "https://stspg.io/purr123",
+                    "started_at": "2026-05-28T08:00:00.000000Z",
+                    "resolved_at": "2026-05-28T10:30:00.000000Z",
+                    "updates": [
+                      {
+                        "id": 1,
+                        "status": "investigating",
+                        "body": "Our team is investigating the issue. Silvia has been removed from the server room.",
+                        "displayed_at": "2026-05-28T08:05:00.000000Z",
+                        "created_at": "2026-05-28T08:05:00.000000Z"
+                      },
+                      {
+                        "id": 2,
+                        "status": "resolved",
+                        "body": "Server back up. Silvia has been given treats as a distraction. We have learned our lesson.",
+                        "displayed_at": "2026-05-28T10:30:00.000000Z",
+                        "created_at": "2026-05-28T10:30:00.000000Z"
+                      }
+                    ]
+                  },
+                  "message": "Incident retrieved."
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/default404"
+          },
+          "429": {
+            "$ref": "#/components/responses/default429"
+          }
+        },
+        "security": []
+      }
+    },
+    "/incidents/cronitor/{id}": {
+      "get": {
+        "tags": [
+          "incidents"
+        ],
+        "summary": "Get a Cronitor incident",
+        "operationId": "get.incidents.cronitor.show",
+        "description": "Returns a single Cronitor monitoring incident with all its updates. Used for self-monitoring — think of it as Sam's personal incident diary.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "The internal incident ID."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Incident retrieved successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer",
+                          "example": 2
+                        },
+                        "source_type": {
+                          "type": "string",
+                          "example": "cronitor"
+                        },
+                        "source_name": {
+                          "type": "string",
+                          "nullable": true,
+                          "example": "Sam Monitor"
+                        },
+                        "source_page_url": {
+                          "type": "string",
+                          "nullable": true,
+                          "example": "https://status.sam-the-cat.nl"
+                        },
+                        "name": {
+                          "type": "string",
+                          "example": "Sam sat on the keyboard and triggered a deploy"
+                        },
+                        "status": {
+                          "type": "string",
+                          "example": "resolved"
+                        },
+                        "severity": {
+                          "type": "string",
+                          "nullable": true,
+                          "example": "major_outage"
+                        },
+                        "url": {
+                          "type": "string",
+                          "nullable": true,
+                          "example": "https://status.sam-the-cat.nl/incidents/inc_001"
+                        },
+                        "started_at": {
+                          "type": "string",
+                          "format": "date-time",
+                          "example": "2026-05-28T09:00:00.000000Z"
+                        },
+                        "resolved_at": {
+                          "type": "string",
+                          "format": "date-time",
+                          "nullable": true,
+                          "example": "2026-05-28T10:30:00.000000Z"
+                        },
+                        "updates": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "integer",
+                                "example": 1
+                              },
+                              "event_type": {
+                                "type": "string",
+                                "example": "incident.opened"
+                              },
+                              "state": {
+                                "type": "string",
+                                "nullable": true,
+                                "example": "investigating"
+                              },
+                              "message": {
+                                "type": "string",
+                                "nullable": true,
+                                "example": "Sam sat on the keyboard. Send help. All queues paused."
+                              },
+                              "event_timestamp": {
+                                "type": "string",
+                                "format": "date-time",
+                                "nullable": true,
+                                "example": "2026-05-28T10:00:00.000000Z"
+                              },
+                              "created_at": {
+                                "type": "string",
+                                "format": "date-time",
+                                "example": "2026-05-28T10:00:00.000000Z"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Incident retrieved."
+                    }
+                  }
+                },
+                "example": {
+                  "success": true,
+                  "code": 200,
+                  "data": {
+                    "id": 2,
+                    "source_type": "cronitor",
+                    "source_name": "Sam Monitor",
+                    "source_page_url": "https://status.sam-the-cat.nl",
+                    "name": "Sam sat on the keyboard and triggered a deploy",
+                    "status": "resolved",
+                    "severity": "major_outage",
+                    "url": "https://status.sam-the-cat.nl/incidents/inc_001",
+                    "started_at": "2026-05-28T09:00:00.000000Z",
+                    "resolved_at": "2026-05-28T10:30:00.000000Z",
+                    "updates": [
+                      {
+                        "id": 1,
+                        "event_type": "incident.opened",
+                        "state": "investigating",
+                        "message": "Sam sat on the keyboard. Send help. All queues paused.",
+                        "event_timestamp": "2026-05-28T09:00:00.000000Z",
+                        "created_at": "2026-05-28T09:00:00.000000Z"
+                      },
+                      {
+                        "id": 2,
+                        "event_type": "incident.resolved",
+                        "state": "resolved",
+                        "message": "Sam has been lured away with a laser pointer. All systems purring again.",
+                        "event_timestamp": "2026-05-28T10:30:00.000000Z",
+                        "created_at": "2026-05-28T10:30:00.000000Z"
+                      }
+                    ]
+                  },
+                  "message": "Incident retrieved."
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/default404"
+          },
+          "429": {
+            "$ref": "#/components/responses/default429"
+          }
+        },
+        "security": []
       }
     },
     "/webhooks/statuspage/{code}": {
