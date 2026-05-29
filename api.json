@@ -14,7 +14,7 @@
       "backgroundColor": "#FFFFFF",
       "altText": "Iriks-IT Logo"
     },
-    "version": "1.32.6"
+    "version": "1.33.0"
   },
   "externalDocs": {
     "description": "Find out more about Iriks-IT",
@@ -71,6 +71,10 @@
     {
       "name": "incidents",
       "description": "Historic incident log from Atlassian statuspage and Cronitor monitoring sources. Independent of notification providers — whether or not Silvia triggered a Discord alert, every incident lands here."
+    },
+    {
+      "name": "vulnerabilities",
+      "description": "GitHub security vulnerability tracking. Silvia audits every dependency. Sam pretends he doesn't see the alerts. The truth is here regardless."
     }
   ],
   "paths": {
@@ -3856,6 +3860,194 @@
           },
           "404": {
             "$ref": "#/components/responses/default404"
+          },
+          "429": {
+            "$ref": "#/components/responses/default429"
+          }
+        },
+        "security": []
+      }
+    },
+    "/vulnerabilities": {
+      "get": {
+        "tags": [
+          "vulnerabilities"
+        ],
+        "summary": "Get GitHub security vulnerability summary",
+        "operationId": "get.vulnerabilities.index",
+        "description": "Returns a summary of all GitHub security vulnerability alerts tracked from webhook events (`dependabot_alert` and `repository_vulnerability_alert`). Includes total open/fixed/dismissed counts, a per-severity breakdown, and a per-repository breakdown sorted by open count descending.\n\nSilvia reviews these nightly. Sam pretends the critical ones are just decorative.",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Vulnerability summary retrieved successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "total_open": {
+                          "type": "integer",
+                          "example": 3,
+                          "description": "Number of currently open (unresolved) vulnerability alerts."
+                        },
+                        "total_fixed": {
+                          "type": "integer",
+                          "example": 12,
+                          "description": "Total alerts that have been fixed."
+                        },
+                        "total_dismissed": {
+                          "type": "integer",
+                          "example": 2,
+                          "description": "Total alerts that have been dismissed or auto-dismissed."
+                        },
+                        "total": {
+                          "type": "integer",
+                          "example": 17,
+                          "description": "Total alerts tracked (open + fixed + dismissed)."
+                        },
+                        "by_severity": {
+                          "type": "object",
+                          "description": "Open alerts grouped by severity level.",
+                          "properties": {
+                            "critical": {
+                              "type": "integer",
+                              "example": 1
+                            },
+                            "high": {
+                              "type": "integer",
+                              "example": 1
+                            },
+                            "medium": {
+                              "type": "integer",
+                              "example": 1
+                            },
+                            "low": {
+                              "type": "integer",
+                              "example": 0
+                            }
+                          }
+                        },
+                        "repositories": {
+                          "type": "array",
+                          "description": "Per-repository breakdown, sorted by open count descending. Silvia's repos always have zero. Sam's are a different story.",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "repo": {
+                                "type": "string",
+                                "example": "IriksIT/silvia-server",
+                                "description": "Repository full name (owner/name)."
+                              },
+                              "open": {
+                                "type": "integer",
+                                "example": 2,
+                                "description": "Open alerts for this repository."
+                              },
+                              "fixed": {
+                                "type": "integer",
+                                "example": 8,
+                                "description": "Fixed alerts for this repository."
+                              },
+                              "dismissed": {
+                                "type": "integer",
+                                "example": 1,
+                                "description": "Dismissed alerts for this repository."
+                              },
+                              "total": {
+                                "type": "integer",
+                                "example": 11
+                              },
+                              "by_severity": {
+                                "type": "object",
+                                "description": "Open alerts by severity for this repository.",
+                                "properties": {
+                                  "critical": {
+                                    "type": "integer",
+                                    "example": 1
+                                  },
+                                  "high": {
+                                    "type": "integer",
+                                    "example": 1
+                                  },
+                                  "medium": {
+                                    "type": "integer",
+                                    "example": 0
+                                  },
+                                  "low": {
+                                    "type": "integer",
+                                    "example": 0
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Vulnerability alerts retrieved."
+                    }
+                  }
+                },
+                "example": {
+                  "success": true,
+                  "code": 200,
+                  "data": {
+                    "total_open": 3,
+                    "total_fixed": 12,
+                    "total_dismissed": 2,
+                    "total": 17,
+                    "by_severity": {
+                      "critical": 1,
+                      "high": 1,
+                      "medium": 1,
+                      "low": 0
+                    },
+                    "repositories": [
+                      {
+                        "repo": "IriksIT/silvia-server",
+                        "open": 2,
+                        "fixed": 8,
+                        "dismissed": 1,
+                        "total": 11,
+                        "by_severity": {
+                          "critical": 1,
+                          "high": 1,
+                          "medium": 0,
+                          "low": 0
+                        }
+                      },
+                      {
+                        "repo": "IriksIT/sam-proxy",
+                        "open": 1,
+                        "fixed": 4,
+                        "dismissed": 1,
+                        "total": 6,
+                        "by_severity": {
+                          "critical": 0,
+                          "high": 0,
+                          "medium": 1,
+                          "low": 0
+                        }
+                      }
+                    ]
+                  },
+                  "message": "Vulnerability alerts retrieved."
+                }
+              }
+            }
           },
           "429": {
             "$ref": "#/components/responses/default429"
