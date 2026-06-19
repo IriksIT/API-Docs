@@ -14,7 +14,7 @@
       "backgroundColor": "#FFFFFF",
       "altText": "Iriks-IT Logo"
     },
-    "version": "1.38.6"
+    "version": "1.39.0"
   },
   "externalDocs": {
     "description": "Find out more about Iriks-IT",
@@ -75,6 +75,10 @@
     {
       "name": "vulnerabilities",
       "description": "GitHub security vulnerability tracking. Silvia audits every dependency. Sam pretends he doesn't see the alerts. The truth is here regardless."
+    },
+    {
+      "name": "rdw",
+      "description": "Dutch vehicle (kenteken) lookups via the RDW open data API. Silvia once parked in a no-parking zone — Sam checked the RDW data and confirmed it was definitely her car."
     }
   ],
   "paths": {
@@ -4650,6 +4654,173 @@
           }
         }
       }
+    },
+    "/tools/kenteken/{kenteken}": {
+      "get": {
+        "tags": [
+          "rdw"
+        ],
+        "summary": "Look up a Dutch vehicle by license plate",
+        "operationId": "get.tools.rdw.kenteken",
+        "description": "Returns vehicle details registered with the Dutch vehicle authority (RDW) for the given license plate (kenteken). Sam looked up Silvia's plate and found three outstanding parking fines. She is not amused.\n\nData is sourced from the RDW open data API and refreshed nightly. Fuel data is fetched on-demand and cached per vehicle.\n\nRequires the `rdw.lookup` permission scope on your token.\n\nThe kenteken is normalised automatically — dashes and spaces are stripped, and it is uppercased before lookup.",
+        "parameters": [
+          {
+            "name": "kenteken",
+            "in": "path",
+            "required": true,
+            "description": "Dutch license plate (kenteken). Dashes and spaces are stripped automatically. Silvia's is classified.",
+            "schema": {
+              "type": "string",
+              "examples": [
+                "SIL3VIA",
+                "SIL-3V-IA",
+                "SAM00X",
+                "AB1234"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Vehicle data retrieved successfully. Sam checked the plates — paws up, all clear.",
+            "headers": {
+              "X-RateLimit-Limit": {
+                "$ref": "#/components/headers/X-RateLimit-Limit"
+              },
+              "X-RateLimit-Remaining": {
+                "$ref": "#/components/headers/X-RateLimit-Remaining"
+              },
+              "X-RateLimit-Reset": {
+                "$ref": "#/components/headers/X-RateLimit-Reset"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/rdw.lookup"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Vehicle data retrieved successfully."
+                    }
+                  }
+                },
+                "example": {
+                  "success": true,
+                  "code": 200,
+                  "data": {
+                    "kenteken": "SIL3VIA",
+                    "voertuigsoort": "Personenauto",
+                    "merk": "TOYOTA",
+                    "handelsbenaming": "Yaris (Silvia Edition)",
+                    "inrichting": "hatchback",
+                    "kleuren": {
+                      "eerste": "Grijs",
+                      "tweede": null
+                    },
+                    "datum_eerste_toelating": "2015-06-19",
+                    "datum_eerste_tenaamstelling_in_nederland": "2015-06-19",
+                    "datum_tenaamstelling": "2020-01-01",
+                    "vervaldatum_apk": "2027-06-19",
+                    "wam_verzekerd": "Ja",
+                    "wacht_op_keuren": {
+                      "huidig": false,
+                      "history": []
+                    },
+                    "export_indicator": false,
+                    "openstaande_terugroepactie": false,
+                    "taxi_indicator": false,
+                    "tenaamstellen_mogelijk": true,
+                    "tellerstandoordeel": "Logisch",
+                    "gewicht": {
+                      "massa_rijklaar": 980,
+                      "toegestane_maximum_massa": 1395,
+                      "laadvermogen": null
+                    },
+                    "trekgewicht": {
+                      "ongeremd": null,
+                      "geremd": 1200
+                    },
+                    "afmetingen": {
+                      "lengte": 388,
+                      "breedte": 169,
+                      "hoogte": 150,
+                      "wielbasis": 251
+                    },
+                    "aantal_zitplaatsen": 5,
+                    "motor": {
+                      "aantal_cilinders": 3,
+                      "cilinderinhoud": 998,
+                      "brandstof": [
+                        {
+                          "volgnummer": 1,
+                          "brandstof": "Benzine",
+                          "emissiecode": "0",
+                          "uitlaatemissieniveau": "EURO 6"
+                        }
+                      ]
+                    },
+                    "financieel": {
+                      "bruto_bpm": 1337,
+                      "catalogusprijs": 18999,
+                      "zuinigheidsclassificatie": "A"
+                    },
+                    "checked_at": "2026-06-19T02:00:00+00:00"
+                  },
+                  "message": "Vehicle data retrieved successfully."
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "description": "No vehicle found for this license plate. Sam sniffed around but came up empty.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                },
+                "example": {
+                  "success": false,
+                  "code": 404,
+                  "message": "No vehicle found for this license plate."
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid license plate format.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                },
+                "example": {
+                  "success": false,
+                  "code": 422,
+                  "message": "The provided value is not a valid Dutch license plate."
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -5287,6 +5458,276 @@
                 }
               }
             }
+          }
+        }
+      },
+      "rdw.lookup": {
+        "type": "object",
+        "properties": {
+          "kenteken": {
+            "type": "string",
+            "example": "SIL3VIA"
+          },
+          "voertuigsoort": {
+            "type": "string",
+            "nullable": true,
+            "example": "Personenauto"
+          },
+          "merk": {
+            "type": "string",
+            "nullable": true,
+            "example": "TOYOTA"
+          },
+          "handelsbenaming": {
+            "type": "string",
+            "nullable": true,
+            "example": "Yaris (Silvia Edition)"
+          },
+          "inrichting": {
+            "type": "string",
+            "nullable": true,
+            "example": "hatchback"
+          },
+          "kleuren": {
+            "type": "object",
+            "properties": {
+              "eerste": {
+                "type": "string",
+                "nullable": true,
+                "example": "Grijs"
+              },
+              "tweede": {
+                "type": "string",
+                "nullable": true,
+                "example": null
+              }
+            }
+          },
+          "datum_eerste_toelating": {
+            "type": "string",
+            "format": "date",
+            "nullable": true,
+            "example": "2015-06-19"
+          },
+          "datum_eerste_tenaamstelling_in_nederland": {
+            "type": "string",
+            "format": "date",
+            "nullable": true,
+            "example": "2015-06-19"
+          },
+          "datum_tenaamstelling": {
+            "type": "string",
+            "format": "date",
+            "nullable": true,
+            "example": "2020-01-01"
+          },
+          "vervaldatum_apk": {
+            "type": "string",
+            "format": "date",
+            "nullable": true,
+            "example": "2027-06-19"
+          },
+          "wam_verzekerd": {
+            "type": "string",
+            "nullable": true,
+            "example": "Ja"
+          },
+          "wacht_op_keuren": {
+            "type": "object",
+            "description": "Whether the vehicle is currently awaiting inspection (keuring). Sam once got flagged — Silvia laughed. Tracks the full status history like an incident log.",
+            "properties": {
+              "huidig": {
+                "type": "boolean",
+                "description": "Current wacht-op-keuren status.",
+                "example": false
+              },
+              "history": {
+                "type": "array",
+                "description": "Chronological list of wacht-op-keuren incidents, most recent first.",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "started_at": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "When the vehicle entered wacht-op-keuren status.",
+                      "example": "2026-01-15T14:30:00+00:00"
+                    },
+                    "resolved_at": {
+                      "type": "string",
+                      "format": "date-time",
+                      "nullable": true,
+                      "description": "When the status was cleared. Null means still open.",
+                      "example": "2026-02-01T08:00:00+00:00"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "export_indicator": {
+            "type": "boolean",
+            "example": false
+          },
+          "openstaande_terugroepactie": {
+            "type": "boolean",
+            "example": false
+          },
+          "taxi_indicator": {
+            "type": "boolean",
+            "example": false
+          },
+          "tenaamstellen_mogelijk": {
+            "type": "boolean",
+            "example": true
+          },
+          "tellerstandoordeel": {
+            "type": "string",
+            "nullable": true,
+            "example": "Logisch"
+          },
+          "gewicht": {
+            "type": "object",
+            "properties": {
+              "massa_rijklaar": {
+                "type": "integer",
+                "nullable": true,
+                "example": 980
+              },
+              "toegestane_maximum_massa": {
+                "type": "integer",
+                "nullable": true,
+                "example": 1395
+              },
+              "laadvermogen": {
+                "type": "integer",
+                "nullable": true,
+                "description": "Maximum payload in kg. Mostly relevant for vans and trucks. Silvia once loaded Sam into the boot — this field tells you if that's legally allowed.",
+                "example": null
+              }
+            }
+          },
+          "trekgewicht": {
+            "type": "object",
+            "description": "Maximum towing capacity. Sam hitches a trailer full of cat food — these are the limits.",
+            "properties": {
+              "ongeremd": {
+                "type": "integer",
+                "nullable": true,
+                "description": "Maximum mass of an unbraked trailer (kg).",
+                "example": null
+              },
+              "geremd": {
+                "type": "integer",
+                "nullable": true,
+                "description": "Maximum mass of a braked trailer (kg).",
+                "example": 1200
+              }
+            }
+          },
+          "afmetingen": {
+            "type": "object",
+            "description": "Vehicle dimensions in centimetres. Silvia is exactly as wide as she thinks she is.",
+            "properties": {
+              "lengte": {
+                "type": "integer",
+                "nullable": true,
+                "description": "Overall length in cm.",
+                "example": 388
+              },
+              "breedte": {
+                "type": "integer",
+                "nullable": true,
+                "description": "Overall width in cm.",
+                "example": 169
+              },
+              "hoogte": {
+                "type": "integer",
+                "nullable": true,
+                "description": "Overall height in cm.",
+                "example": 150
+              },
+              "wielbasis": {
+                "type": "integer",
+                "nullable": true,
+                "description": "Wheelbase in cm.",
+                "example": 251
+              }
+            }
+          },
+          "aantal_zitplaatsen": {
+            "type": "integer",
+            "nullable": true,
+            "example": 5
+          },
+          "motor": {
+            "type": "object",
+            "properties": {
+              "aantal_cilinders": {
+                "type": "integer",
+                "nullable": true,
+                "example": 3
+              },
+              "cilinderinhoud": {
+                "type": "integer",
+                "nullable": true,
+                "example": 998
+              },
+              "brandstof": {
+                "type": "array",
+                "nullable": true,
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "volgnummer": {
+                      "type": "integer",
+                      "example": 1
+                    },
+                    "brandstof": {
+                      "type": "string",
+                      "nullable": true,
+                      "example": "Benzine"
+                    },
+                    "emissiecode": {
+                      "type": "string",
+                      "nullable": true,
+                      "example": "0"
+                    },
+                    "uitlaatemissieniveau": {
+                      "type": "string",
+                      "nullable": true,
+                      "example": "EURO 6"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "financieel": {
+            "type": "object",
+            "properties": {
+              "bruto_bpm": {
+                "type": "integer",
+                "nullable": true,
+                "example": 1337
+              },
+              "catalogusprijs": {
+                "type": "integer",
+                "nullable": true,
+                "example": 18999
+              },
+              "zuinigheidsclassificatie": {
+                "type": "string",
+                "nullable": true,
+                "example": "A"
+              }
+            }
+          },
+          "checked_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "example": "2026-06-19T02:00:00+00:00"
           }
         }
       }
