@@ -14,7 +14,7 @@
 | Account | Register, verify, and log in to obtain a Bearer token |
 | Products | Product catalog — list, create, update, and delete |
 | Hot Wheels | Hot Wheels collection tracker — full CRUD |
-| IP Tools | IP intelligence: geolocation, ASN, proxy detection, and AbuseIPDB threat data |
+| IP Tools | IP intelligence: geolocation, ASN, proxy detection, AbuseIPDB threat data, and reporting an IP to AbuseIPDB |
 
 ## Authentication
 
