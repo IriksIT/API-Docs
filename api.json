@@ -14,7 +14,7 @@
       "backgroundColor": "#FFFFFF",
       "altText": "Iriks-IT Logo"
     },
-    "version": "1.42.0"
+    "version": "1.43.0"
   },
   "externalDocs": {
     "description": "Find out more about Iriks-IT",
@@ -857,6 +857,206 @@
                   "code": 422,
                   "data": "",
                   "message": "The provided value is not a valid IP address."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tools/ip/{ip}/report": {
+      "post": {
+        "tags": [
+          "tools"
+        ],
+        "summary": "Report an IP address to AbuseIPDB",
+        "operationId": "post.tools.ip.report",
+        "description": "Reports an IP address to AbuseIPDB under one or more category IDs. Sam keeps a personal logbook of every report filed under his watch — every request is recorded in our own history, sent or not.\n\nRequires the `ip.report` permission scope on your token.\n\n**Throttling:** the same IP address can only be reported once every 12 hours. AbuseIPDB itself only enforces a 15-minute minimum between reports for the same address, but Silvia prefers to let sleeping IPs lie a little longer before reporting them again. Reporting an IP within the window returns `429` with the last known score and the time the next report will be allowed.",
+        "parameters": [
+          {
+            "name": "ip",
+            "in": "path",
+            "required": true,
+            "description": "The IPv4 or IPv6 address to report. Sam double-checks it's not his own.",
+            "schema": {
+              "type": "string",
+              "examples": [
+                "118.25.6.39",
+                "2001:db8::1",
+                "1.1.1.1"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "categories"
+                ],
+                "properties": {
+                  "categories": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 23
+                    },
+                    "minItems": 1,
+                    "maxItems": 30,
+                    "description": "AbuseIPDB category IDs (e.g. 18 = Brute-Force, 22 = SSH). See https://www.abuseipdb.com/categories for the full list.",
+                    "example": [
+                      18,
+                      22
+                    ]
+                  },
+                  "comment": {
+                    "type": "string",
+                    "maxLength": 1024,
+                    "description": "Optional details about the abuse (logs, ports, etc.). Sam appreciates specifics.",
+                    "example": "Sam caught this IP trying every password on the SSH port at 3 AM."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Report submitted to AbuseIPDB successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "status": {
+                          "type": "string",
+                          "enum": [
+                            "sent"
+                          ],
+                          "example": "sent"
+                        },
+                        "ip": {
+                          "type": "string",
+                          "example": "118.25.6.39"
+                        },
+                        "abuse_confidence_score": {
+                          "type": "integer",
+                          "example": 52
+                        },
+                        "next_report_allowed_at": {
+                          "type": "string",
+                          "format": "date-time",
+                          "example": "2026-04-20T02:00:00+00:00"
+                        }
+                      }
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "IP address reported to AbuseIPDB successfully."
+                    }
+                  }
+                },
+                "example": {
+                  "success": true,
+                  "code": 200,
+                  "data": {
+                    "status": "sent",
+                    "ip": "118.25.6.39",
+                    "abuse_confidence_score": 52,
+                    "next_report_allowed_at": "2026-04-20T02:00:00+00:00"
+                  },
+                  "message": "IP address reported to AbuseIPDB successfully."
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/default401"
+          },
+          "403": {
+            "description": "Missing `ip.report` permission scope on your token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/response.error"
+                },
+                "example": {
+                  "success": false,
+                  "code": 403,
+                  "data": "",
+                  "message": "You do not have permission to report IP addresses."
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation failed — invalid IP address, missing categories, or an unrecognised category ID. Even Sam knows category 9999 doesn't exist.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/response.error"
+                },
+                "example": {
+                  "success": false,
+                  "code": 422,
+                  "data": {
+                    "categories": [
+                      "The categories field must have at least 1 items."
+                    ]
+                  },
+                  "message": "Validation Error."
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "This IP address was already reported within the last 12 hours. Silvia is making it wait its turn.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/response.error"
+                },
+                "example": {
+                  "success": false,
+                  "code": 429,
+                  "data": {
+                    "status": "throttled",
+                    "ip": "118.25.6.39",
+                    "abuse_confidence_score": 40,
+                    "next_report_allowed_at": "2026-04-20T02:00:00+00:00"
+                  },
+                  "message": "This IP address was already reported within the last 12 hours, so it wasn't sent to AbuseIPDB again."
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "AbuseIPDB rejected the report or no API key was available. Sam blames the WiFi.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/response.error"
+                },
+                "example": {
+                  "success": false,
+                  "code": 502,
+                  "data": "",
+                  "message": "Unable to submit the report to AbuseIPDB right now."
                 }
               }
             }
