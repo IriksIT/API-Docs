@@ -14,7 +14,7 @@
       "backgroundColor": "#FFFFFF",
       "altText": "Iriks-IT Logo"
     },
-    "version": "1.44.8"
+    "version": "1.45.0"
   },
   "externalDocs": {
     "description": "Find out more about Iriks-IT",
@@ -3418,7 +3418,7 @@
         ],
         "summary": "List all incidents",
         "operationId": "get.incidents.index",
-        "description": "Returns a paginated list of all historic incidents from both Atlassian statuspage and Cronitor sources. Sorted by start time, newest first. Silvia and Sam both have their own status pages. This endpoint purrs with all of them.",
+        "description": "Returns a paginated list of all historic incidents from Atlassian statuspage, Cronitor and Uptime Kuma sources. Sorted by start time, newest first. Silvia and Sam both have their own status pages. This endpoint purrs with all of them.",
         "parameters": [
           {
             "name": "source_type",
@@ -3428,10 +3428,11 @@
               "type": "string",
               "enum": [
                 "statuspage",
-                "cronitor"
+                "cronitor",
+                "uptime_kuma"
               ]
             },
-            "description": "Filter by source type. Omit for both."
+            "description": "Filter by source type. Omit for all of them."
           },
           {
             "name": "resolved",
@@ -3640,7 +3641,7 @@
         ],
         "summary": "List incident sources",
         "operationId": "get.incidents.sources",
-        "description": "Returns all configured incident sources (Atlassian statuspage and Cronitor), with their name, URL, and whether they currently have an ongoing incident. Silvia and Sam each have their own status page — this endpoint tells you if either of them is currently causing chaos.",
+        "description": "Returns all configured incident sources (Atlassian statuspage, Cronitor and Uptime Kuma), with their name, URL, and whether they currently have an ongoing incident. Silvia and Sam each have their own status page — this endpoint tells you if either of them is currently causing chaos.",
         "responses": {
           "200": {
             "description": "Sources retrieved successfully.",
@@ -3666,7 +3667,8 @@
                             "type": "string",
                             "enum": [
                               "statuspage",
-                              "cronitor"
+                              "cronitor",
+                              "uptime_kuma"
                             ],
                             "example": "statuspage"
                           },
@@ -3701,6 +3703,12 @@
                       "source_type": "cronitor",
                       "name": "Sam Monitor",
                       "url": "https://status.sam-the-cat.nl",
+                      "has_ongoing_incident": false
+                    },
+                    {
+                      "source_type": "uptime_kuma",
+                      "name": "Catnip Homelab",
+                      "url": "https://uptime.silvia-the-cat.nl",
                       "has_ongoing_incident": false
                     },
                     {
@@ -5018,6 +5026,250 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/incidents/uptime-kuma/{id}": {
+      "get": {
+        "tags": [
+          "incidents"
+        ],
+        "summary": "Get an Uptime Kuma incident",
+        "operationId": "get.incidents.uptime-kuma.show",
+        "description": "Returns a single Uptime Kuma monitoring incident with all its updates. An incident opens when a monitor reports down and resolves when it comes back up — much like Sam, who goes down for a nap without warning and resolves himself only when the food bowl rattles.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "The internal incident ID."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Incident retrieved successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer",
+                          "example": 3
+                        },
+                        "source_type": {
+                          "type": "string",
+                          "example": "uptime_kuma"
+                        },
+                        "source_name": {
+                          "type": "string",
+                          "nullable": true,
+                          "example": "Catnip Homelab"
+                        },
+                        "source_page_url": {
+                          "type": "string",
+                          "nullable": true,
+                          "example": "https://uptime.silvia-the-cat.nl"
+                        },
+                        "name": {
+                          "type": "string",
+                          "example": "Litterbox NAS is down"
+                        },
+                        "monitor_name": {
+                          "type": "string",
+                          "example": "Litterbox NAS"
+                        },
+                        "status": {
+                          "type": "string",
+                          "enum": [
+                            "ongoing",
+                            "resolved"
+                          ],
+                          "example": "resolved"
+                        },
+                        "url": {
+                          "type": "string",
+                          "nullable": true,
+                          "example": "https://nas.silvia-the-cat.nl"
+                        },
+                        "started_at": {
+                          "type": "string",
+                          "format": "date-time",
+                          "example": "2026-07-22T10:00:00.000000Z"
+                        },
+                        "resolved_at": {
+                          "type": "string",
+                          "format": "date-time",
+                          "nullable": true,
+                          "example": "2026-07-22T10:15:00.000000Z"
+                        },
+                        "updates": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "integer",
+                                "example": 1
+                              },
+                              "status": {
+                                "type": "string",
+                                "enum": [
+                                  "down",
+                                  "up"
+                                ],
+                                "example": "down"
+                              },
+                              "message": {
+                                "type": "string",
+                                "nullable": true,
+                                "example": "timeout of 48000ms exceeded — Sam unplugged the NAS to nap on the warm power brick"
+                              },
+                              "event_timestamp": {
+                                "type": "string",
+                                "format": "date-time",
+                                "example": "2026-07-22T10:00:00.000000Z"
+                              },
+                              "created_at": {
+                                "type": "string",
+                                "format": "date-time",
+                                "example": "2026-07-22T10:00:01.000000Z"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Incident retrieved."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Incident not found. Like Silvia when the vacuum comes out — simply not there."
+          },
+          "429": {
+            "$ref": "#/components/responses/default429"
+          }
+        },
+        "security": []
+      }
+    },
+    "/webhooks/uptime-kuma/{code}": {
+      "post": {
+        "tags": [
+          "webhooks"
+        ],
+        "summary": "Receive an Uptime Kuma webhook",
+        "operationId": "post.webhooks.uptime-kuma",
+        "description": "Receives heartbeat notification payloads from an Uptime Kuma instance (notification type: Webhook). The `{code}` path segment identifies the registered source — Silvia checks it against a list of known sources and will swat away anything she doesn't recognise.\n\nA `down` heartbeat (status `0`) opens an incident for the monitor (or adds an update to the ongoing one); an `up` heartbeat (status `1`) resolves it. Pending (`2`) and maintenance (`3`) heartbeats are ignored — even Sam is allowed a scheduled nap. Duplicate deliveries with the same heartbeat time are safely ignored; Silvia never reports the same hairball twice.\n\nThis endpoint requires no authentication token; access is gated solely by the source `{code}`.",
+        "security": [],
+        "parameters": [
+          {
+            "name": "code",
+            "in": "path",
+            "required": true,
+            "description": "The unique source code registered for this Uptime Kuma instance. Sam guards the list — unknown codes get a 404.",
+            "schema": {
+              "type": "string",
+              "example": "a1b2c3d4e5f6g7h8"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Uptime Kuma webhook payload ('application/json' preset). Must contain both a `heartbeat` and a `monitor` object; the Test button payload (nulls) is acknowledged without processing.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "heartbeat",
+                  "monitor"
+                ],
+                "properties": {
+                  "heartbeat": {
+                    "type": "object",
+                    "nullable": true,
+                    "properties": {
+                      "status": {
+                        "type": "integer",
+                        "enum": [
+                          0,
+                          1,
+                          2,
+                          3
+                        ],
+                        "description": "0 = down, 1 = up, 2 = pending, 3 = maintenance.",
+                        "example": 0
+                      },
+                      "time": {
+                        "type": "string",
+                        "example": "2026-07-22 10:00:00.000"
+                      },
+                      "msg": {
+                        "type": "string",
+                        "example": "timeout of 48000ms exceeded"
+                      },
+                      "important": {
+                        "type": "boolean",
+                        "example": true
+                      }
+                    }
+                  },
+                  "monitor": {
+                    "type": "object",
+                    "nullable": true,
+                    "properties": {
+                      "id": {
+                        "type": "integer",
+                        "example": 7
+                      },
+                      "name": {
+                        "type": "string",
+                        "example": "Litterbox NAS"
+                      },
+                      "url": {
+                        "type": "string",
+                        "nullable": true,
+                        "example": "https://nas.silvia-the-cat.nl"
+                      }
+                    }
+                  },
+                  "msg": {
+                    "type": "string",
+                    "example": "[Litterbox NAS] [🔴 Down] timeout of 48000ms exceeded"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Webhook received. Returned for valid codes regardless of payload shape, so Uptime Kuma's Test button gets a friendly meow back."
+          },
+          "404": {
+            "description": "Unknown or inactive webhook code."
           }
         }
       }
