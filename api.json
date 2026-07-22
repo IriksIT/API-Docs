@@ -14,7 +14,7 @@
       "backgroundColor": "#FFFFFF",
       "altText": "Iriks-IT Logo"
     },
-    "version": "1.46.0"
+    "version": "1.47.0"
   },
   "externalDocs": {
     "description": "Find out more about Iriks-IT",
@@ -5272,6 +5272,139 @@
             "description": "Unknown or inactive webhook code."
           }
         }
+      }
+    },
+    "/pipelines": {
+      "get": {
+        "tags": [
+          "incidents"
+        ],
+        "summary": "List recent CI pipeline runs",
+        "operationId": "get.pipelines.index",
+        "description": "Returns the most recent GitHub Actions workflow runs, newest first — queued, running, and completed. Powers the pipelines strip on the status board. Sam watches every deploy from the top of the server rack; this endpoint is slightly more reliable than his tail-twitch signals.",
+        "parameters": [
+          {
+            "name": "per_page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50,
+              "default": 10
+            },
+            "description": "Number of runs to return (max 50)."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Pipeline runs retrieved successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer",
+                            "example": 12
+                          },
+                          "repo": {
+                            "type": "string",
+                            "example": "IriksIT/api-server"
+                          },
+                          "workflow_name": {
+                            "type": "string",
+                            "example": "Deploy to production"
+                          },
+                          "run_number": {
+                            "type": "integer",
+                            "nullable": true,
+                            "example": 87
+                          },
+                          "event": {
+                            "type": "string",
+                            "nullable": true,
+                            "example": "push"
+                          },
+                          "branch": {
+                            "type": "string",
+                            "nullable": true,
+                            "example": "production"
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "queued",
+                              "in_progress",
+                              "completed"
+                            ],
+                            "example": "completed"
+                          },
+                          "conclusion": {
+                            "type": "string",
+                            "nullable": true,
+                            "example": "success"
+                          },
+                          "url": {
+                            "type": "string",
+                            "nullable": true,
+                            "example": "https://github.com/IriksIT/api-server/actions/runs/424242"
+                          },
+                          "commit_message": {
+                            "type": "string",
+                            "nullable": true,
+                            "example": "feat: automatic treat dispenser for Silvia"
+                          },
+                          "actor": {
+                            "type": "string",
+                            "nullable": true,
+                            "example": "IriksIT"
+                          },
+                          "started_at": {
+                            "type": "string",
+                            "format": "date-time",
+                            "nullable": true,
+                            "example": "2026-07-22T15:00:00.000000Z"
+                          },
+                          "completed_at": {
+                            "type": "string",
+                            "format": "date-time",
+                            "nullable": true,
+                            "example": "2026-07-22T15:05:00.000000Z"
+                          }
+                        }
+                      }
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Pipeline runs retrieved."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found. Like Silvia when the vacuum comes out — simply not there."
+          },
+          "429": {
+            "$ref": "#/components/responses/default429"
+          }
+        },
+        "security": []
       }
     }
   },
