@@ -15,6 +15,7 @@
 | Products | Product catalog — list, create, update, and delete |
 | Hot Wheels | Hot Wheels collection tracker — full CRUD |
 | IP Tools | IP intelligence: geolocation, ASN, proxy detection, AbuseIPDB threat data, and reporting an IP to AbuseIPDB |
+| Status & Incidents | Public status feed powering [status.iriks-it.nl](https://status.iriks-it.nl) — incident sources, history, and per-incident updates (no token required) |
 
 ## Authentication
 
