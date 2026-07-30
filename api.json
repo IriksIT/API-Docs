@@ -14,7 +14,7 @@
       "backgroundColor": "#FFFFFF",
       "altText": "Iriks-IT Logo"
     },
-    "version": "1.53.4"
+    "version": "1.54.0"
   },
   "externalDocs": {
     "description": "Find out more about Iriks-IT",
@@ -5357,6 +5357,29 @@
                             "type": "string",
                             "nullable": true,
                             "example": "success"
+                          },
+                          "current_step": {
+                            "type": "string",
+                            "nullable": true,
+                            "description": "Name of the step currently in progress. Only meaningful while status is in_progress — polled from GitHub every minute since GitHub doesn't send a webhook per step, so Silvia's paw would beat it to the punch anyway.",
+                            "example": "Herd Sam and Silvia into the test suite"
+                          },
+                          "failed_step": {
+                            "type": "string",
+                            "nullable": true,
+                            "description": "Name of the step the run failed on, if conclusion is failure. Persists after completion so you know exactly where things went sideways.",
+                            "example": "Run Pest suite"
+                          },
+                          "runner_name": {
+                            "type": "string",
+                            "nullable": true,
+                            "description": "The runner that executed the run. Only recorded when is_self_hosted is true — Sam insists on knowing exactly which box he's supervising.",
+                            "example": "silvia-and-sam-runner-01"
+                          },
+                          "is_self_hosted": {
+                            "type": "boolean",
+                            "description": "Whether the run used a self-hosted runner rather than a GitHub-hosted one.",
+                            "example": false
                           },
                           "url": {
                             "type": "string",
