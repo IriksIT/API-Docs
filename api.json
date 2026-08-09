@@ -14,7 +14,7 @@
       "backgroundColor": "#FFFFFF",
       "altText": "Iriks-IT Logo"
     },
-    "version": "1.55.6"
+    "version": "1.56.0"
   },
   "externalDocs": {
     "description": "Find out more about Iriks-IT",
@@ -79,6 +79,10 @@
     {
       "name": "rdw",
       "description": "Dutch vehicle (kenteken) lookups via the RDW open data API. Silvia once parked in a no-parking zone — Sam checked the RDW data and confirmed it was definitely her car."
+    },
+    {
+      "name": "fun",
+      "description": "Endpoints that exist purely because they're funny. Silvia and Sam approved this entire tag; no further oversight was requested."
     }
   ],
   "paths": {
@@ -5422,6 +5426,55 @@
           },
           "404": {
             "description": "Not found. Like Silvia when the vacuum comes out — simply not there."
+          },
+          "429": {
+            "$ref": "#/components/responses/default429"
+          }
+        },
+        "security": []
+      }
+    },
+    "/no": {
+      "get": {
+        "tags": [
+          "fun"
+        ],
+        "summary": "Get a bratty, cat-themed reason to say no",
+        "operationId": "get.no.index",
+        "description": "Returns one random rejection reason, delivered with the confidence of a cat who has never once been told what to do. No token required — Silvia doesn't believe in gatekeeping her opinions, and Sam just wants you to leave him alone. Inspired by hotheadhacker/no-as-a-service.",
+        "responses": {
+          "200": {
+            "description": "A reason was generated. It will not be a good one.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "reason": {
+                          "type": "string",
+                          "example": "Silvia sat on the enter key. This is her decision now, not mine."
+                        }
+                      }
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "No."
+                    }
+                  }
+                }
+              }
+            }
           },
           "429": {
             "$ref": "#/components/responses/default429"
